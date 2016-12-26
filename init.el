@@ -405,8 +405,14 @@ you should place your code here."
   ;; org startup indented on org file by default
   (setq org-startup-indented t)
   (setq org-log-into-drawer t)
+  ;; allows changing todo states with S-left and S-right skipping all of the normal processing when entering or leaving a todo state. This cycles through the todo states but skips setting timestamps and entering notes which is very convenient when all you want to do is fix up the status of an entry.
+  (setq org-treat-S-cursor-todo-selection-as-state-change nil)
+  ;; Save clock data and notes in the LOGBOOK drawer
   (setq org-clock-into-drawer t)
-
+  ;; Change task state to NEXT when clocking in
+  ;;(setq org-clock-in-switch-to-state "NEXT")
+  ;; Removes clocked tasks with 0:00 duration
+  (setq org-clock-out-remove-zero-time-clocks t)
   ;; org-mode keybindings
   (global-set-key "\C-cl" 'org-store-link)
   (global-set-key "\C-ca" 'org-agenda)
@@ -430,13 +436,13 @@ you should place your code here."
                 ("PHONE" :foreground "#859900" :weight bold))))
 
   ;; Todo keywords trigger
-  ;; Moving a task to `CANCELLED' adds a `CANCELLED' tag
+  ;; Moving a task to `CANCELED' adds a `CANCELED' tag
   ;; Moving a task to `WAITING' adds a `WAITING' tag
   ;; Moving a task to `HOLD' adds `WAITING' and `HOLD' tags
   ;; Moving a task to a done state removes `WAITING' and HOLD' tags
-  ;; Moving a task to `TODO' removes `WAITING', `CANCELLED', and `HOLD' tags
-  ;; Moving a task to `NEXT' removes `WAITING', `CANCELLED', and `HOLD' tags
-  ;; Moving a task to `DONE' removes `WAITING', `CANCELLED', and `HOLD' tags
+  ;; Moving a task to `TODO' removes `WAITING', `CANCELED', and `HOLD' tags
+  ;; Moving a task to `NEXT' removes `WAITING', `CANCELED', and `HOLD' tags
+  ;; Moving a task to `DONE' removes `WAITING', `CANCELED', and `HOLD' tags
   (setq org-todo-state-tags-triggers
         (quote (("CANCELED" ("CANCELED" . t))
                 ("WAITING" ("WAITING" . t))
@@ -451,11 +457,17 @@ you should place your code here."
   (setq org-default-notes-file "~/org/inbox.org")
 
   ;; Capture templates for: TODO tasks, Notes, appointments, phone calls, meetings, and org-protocol
+  ;; the %i would copy the selected text into the template
   (setq org-capture-templates
-        '(("t" "todo" entry (file "~/org/inbox.org")
+        '(("t" "Todo" entry (file "~/org/inbox.org")
            "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
-          ("n" "note" entry (file "~/org/inbox.org")
+          ("n" "Note" entry (file "~/org/inbox.org")
            "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t)
+          ("s" "Code Snippet" entry (file "~/org/inbox.org")
+           "* %?\t%^g\n#+BEGIN_SRC %^{language}\n\n#+END_SRC")
+          ("l" "links" entry (file+headline "~/org/inbox.org" "Quick notes")
+           "* TODO [#C] %?\n  %i\n %a \n %U"
+           :empty-lines 1)
           ("j" "Journal" entry (file+datetree "~/org/journal.org")
            "* %?\n%U\n" :clock-in t :clock-resume t)
           ("m" "Meeting" entry (file "~/org/inbox.org")
@@ -485,22 +497,22 @@ you should place your code here."
                                    (org-agenda-files :maxlevel . 9))))
 
   ;; Use full outline paths for refile targets - we file directly with IDO
-  ;;(setq org-refile-use-outline-path t)
+  (setq org-refile-use-outline-path t)
 
   ;; Targets complete directly with IDO
-  ;;(setq org-outline-path-complete-in-steps nil)
+  (setq org-outline-path-complete-in-steps nil)
 
   ;; Allow refile to create parent tasks with confirmation
   (setq org-refile-allow-creating-parent-nodes (quote confirm))
 
   ;; Use IDO for both buffer and file completion and ido-everywhere to t
-  ;; (setq org-completion-use-ido t)
-  ;; (setq ido-everywhere t)
-  ;; (setq ido-max-directory-size 100000)
-  ;; (ido-mode (quote both))
+  (setq org-completion-use-ido t)
+  (setq ido-everywhere t)
+  (setq ido-max-directory-size 100000)
+  ;;(ido-mode (quote both))
   ;; Use the current window when visiting files and buffers with ido
-  ;; (setq ido-default-file-method 'selected-window)
-  ;; (setq ido-default-buffer-method 'selected-window)
+  (setq ido-default-file-method 'selected-window)
+  (setq ido-default-buffer-method 'selected-window)
   ;; Use the current window for indirect buffer display
   (setq org-indirect-buffer-display 'current-window)
 
