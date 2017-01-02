@@ -1,0 +1,6 @@
+# name: arr.forEach()
+# key: forEach
+# --
+${1:myArray}.forEach(function(${2:elem}) {
+	$0
+});

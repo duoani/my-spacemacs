@@ -1,0 +1,8 @@
+# key: forin
+# name: for (prop in obj) {...}
+# --
+for (${1:prop} in ${2:obj}) {
+	if ($2.hasOwnProperty($1)) {
+		$0
+	}
+}

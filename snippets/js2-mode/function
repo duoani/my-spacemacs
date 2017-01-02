@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: function(arg) {...}
+# key: func
+# --
+function $1($2) {
+  $0
+}
