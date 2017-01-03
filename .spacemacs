@@ -31,7 +31,6 @@ values."
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
    '(
-     themes-megapack
      markdown
      (javascript
       :variables
@@ -81,9 +80,7 @@ values."
                                     cute-jumper/fcitx.el
                                     coldnew/pangu-spacing
                                     org-bullets
-                                    evil-unimpaired ;; melpa connect timeout
                                     tern
-                                    eshell-v
                                     )
    ;; Defines the behaviour of Spacemacs when installing packages.
    ;; Possible values are `used-only', `used-but-keep-unused' and `all'.
@@ -159,8 +156,8 @@ values."
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
-   dotspacemacs-default-font '("Source Code Pro"
-                               :size 13
+   dotspacemacs-default-font '("Consolas"
+                               :size 14
                                :weight normal
                                :width normal
                                :powerline-scale 1)
@@ -328,18 +325,21 @@ explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
 
   ;; encode settings
-  (set-keyboard-coding-system 'utf-8)
-  (set-clipboard-coding-system 'utf-8)
-  (set-terminal-coding-system 'utf-8)
-  (set-buffer-file-coding-system 'utf-8)
-  (set-default-coding-systems 'utf-8)
-  (set-selection-coding-system 'utf-8)
-  (modify-coding-system-alist 'process "*" 'utf-8)
-  (setq default-process-coding-system '(utf-8 . utf-8))
-  (setq default-buffer-file-coding-system 'utf-8)
-  (setq-default pathname-coding-system 'utf-8)
-  (set-file-name-coding-system 'utf-8)
-  (prefer-coding-system 'utf-8)
+  ;; (setq coding-system-for-write 'utf-8)
+  ;; (set-keyboard-coding-system 'utf-8)
+  ;; (set-clipboard-coding-system 'utf-8)
+  ;; (set-terminal-coding-system 'utf-8)
+  ;; (set-buffer-file-coding-system 'utf-8)
+  ;; (set-default-coding-systems 'utf-8)
+  ;; (unless (eq system-type 'windows-nt) (set-selection-coding-system 'utf-8))
+  ;;(set-selection-coding-system 'utf-8)
+  ;; (modify-coding-system-alist 'process "*" 'utf-8)
+  ;; (setq default-process-coding-system '(utf-8 . utf-8))
+  ;; (setq default-buffer-file-coding-system 'utf-8)
+  ;; (setq-default pathname-coding-system 'utf-8)
+  ;; (set-file-name-coding-system 'utf-8)
+  ;; (prefer-coding-system 'utf-8-dos)
+  (prefer-coding-system 'utf-8-unix)
 
   ;; global company mode
   (global-company-mode)
@@ -347,18 +347,6 @@ you should place your code here."
   (global-flycheck-mode)
 
   (define-key evil-normal-state-map (kbd "u") 'undo-tree-undo)
-
-  ;; Chinese mono font (Just in Emacs with Graphic)
-  (if (display-graphic-p)
-      (spacemacs//set-monospaced-font "Source Code Pro" "Yahei Mono" 14 14))
-
-  ;;解决org表格里面中英文对齐的问题
-  ;; (when (configuration-layer/layer-usedp 'chinese)
-  ;;   (when (and (spacemacs/system-is-mac) window-system)
-  ;;     (spacemacs//set-monospaced-font "Source Code Pro" "Hiragino Sans GB" 14 16)))
-
-  (setq tramp-ssh-controlmaster-options
-        "-o ControlMaster=auto -o ControlPath='tramp.%%C' -o ControlPersist=no")
 
   ;; indent to 2 spaces
   (setq-default js2-basic-offset 2) ;; js indent
@@ -548,6 +536,11 @@ you should place your code here."
 
   (define-key evil-normal-state-map (kbd "u") 'undo-tree-undo)
 
+  ;; Chinese mono font
+  (spacemacs//set-monospaced-font "Consolas" "Yahei Mono" 14 14)
+  (setq tramp-ssh-controlmaster-options
+        "-o ControlMaster=auto -o ControlPath='tramp.%%C' -o ControlPersist=no")
+
   ;; turn on flycheck globally
   (global-flycheck-mode)
 
@@ -573,12 +566,9 @@ you should place your code here."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(org-agenda-files
-   (quote
-    ("~/org/project/sdk.org" "/Users/duoani/org/emacs.org" "/Users/duoani/org/eslint.org" "/Users/duoani/org/git.org" "/Users/duoani/org/inbox.org" "/Users/duoani/org/journal.org" "/Users/duoani/org/links.org" "/Users/duoani/org/meeting.org" "/Users/duoani/org/project/ad-admin.org" "/Users/duoani/org/project/ad.org" "/Users/duoani/org/project/site.org")))
  '(package-selected-packages
    (quote
-    (org-projectile org-present org org-pomodoro alert log4e gntp org-download htmlize gnuplot deft company-quickhelp zonokai-theme zenburn-theme zen-and-art-theme underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme tronesque-theme toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme sunny-day-theme sublime-themes subatomic256-theme subatomic-theme spacegray-theme soothe-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme seti-theme reverse-theme railscasts-theme purple-haze-theme professional-theme planet-theme phoenix-dark-pink-theme phoenix-dark-mono-theme pastels-on-dark-theme organic-green-theme omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme niflheim-theme naquadah-theme mustang-theme monokai-theme monochrome-theme molokai-theme moe-theme minimal-theme material-theme majapahit-theme lush-theme light-soap-theme jbeans-theme jazz-theme ir-black-theme inkpot-theme heroku-theme hemisu-theme hc-zenburn-theme gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme gandalf-theme flatui-theme flatland-theme firebelly-theme farmhouse-theme espresso-theme dracula-theme django-theme darktooth-theme darkokai-theme darkmine-theme darkburn-theme dakrone-theme cyberpunk-theme color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized clues-theme cherry-blossom-theme busybee-theme bubbleberry-theme birds-of-paradise-plus-theme badwolf-theme apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes afternoon-theme wgrep smex ivy-hydra counsel-projectile counsel swiper ivy js2-refactor helm-c-yasnippet auto-yasnippet youdao-dictionary names chinese-word-at-point web-mode web-beautify tagedit slim-mode scss-mode sass-mode pug-mode mmm-mode markdown-toc markdown-mode livid-mode skewer-mode simple-httpd less-css-mode json-mode json-snatcher json-reformat multiple-cursors js2-mode js-doc helm-css-scss helm-company haml-mode gh-md flycheck-pos-tip flycheck emmet-mode company-web web-completion-data company-tern dash-functional tern company-statistics company coffee-mode yasnippet ac-ispell auto-complete pangu-spacing mwim find-by-pinyin-dired chinese-pyim chinese-pyim-basedict pos-tip ace-pinyin pinyinlib ace-jump-mode ws-butler window-numbering which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib package-build spacemacs-theme))))
+    (org-projectile org-present org-pomodoro alert log4e gntp org-download htmlize gnuplot deft smeargle orgit org magit-gitflow gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link evil-magit magit magit-popup git-commit with-editor mwim flyspell-correct-ivy flyspell-correct flycheck-pos-tip pos-tip company-web web-completion-data company-tern dash-functional company-statistics auto-yasnippet auto-dictionary ac-ispell auto-complete flycheck company helm-themes helm-swoop helm-projectile helm-mode-manager helm-flx helm-descbinds helm-ag ace-jump-helm-line mmm-mode markdown-toc markdown-mode gh-md zonokai-theme zenburn-theme zen-and-art-theme underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme tronesque-theme toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme sunny-day-theme sublime-themes subatomic256-theme subatomic-theme spacegray-theme soothe-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme seti-theme reverse-theme railscasts-theme purple-haze-theme professional-theme planet-theme phoenix-dark-pink-theme phoenix-dark-mono-theme pastels-on-dark-theme organic-green-theme omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme niflheim-theme naquadah-theme mustang-theme monokai-theme monochrome-theme molokai-theme moe-theme minimal-theme material-theme majapahit-theme lush-theme light-soap-theme jbeans-theme jazz-theme ir-black-theme inkpot-theme heroku-theme hemisu-theme hc-zenburn-theme gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme gandalf-theme flatui-theme flatland-theme firebelly-theme farmhouse-theme espresso-theme dracula-theme django-theme darktooth-theme darkokai-theme darkmine-theme darkburn-theme dakrone-theme cyberpunk-theme color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized clues-theme cherry-blossom-theme busybee-theme bubbleberry-theme birds-of-paradise-plus-theme badwolf-theme apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes afternoon-theme helm-css-scss evil-unimpaired tern youdao-dictionary names chinese-word-at-point pangu-spacing find-by-pinyin-dired ace-pinyin pinyinlib ace-jump-mode web-beautify livid-mode skewer-mode simple-httpd json-mode json-snatcher json-reformat js2-refactor yasnippet multiple-cursors js2-mode js-doc coffee-mode web-mode tagedit slim-mode scss-mode sass-mode pug-mode less-css-mode haml-mode emmet-mode ws-butler window-numbering which-key wgrep volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline smex restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint ivy-hydra info+ indent-guide ido-vertical-mode hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-make helm helm-core google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump popup f s diminish define-word counsel-projectile projectile pkg-info epl counsel swiper ivy spacemacs-theme quelpa column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile async aggressive-indent adaptive-wrap ace-window ace-link))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
