@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: fn: function (arg) {...}
+# key: funo
+# --
+${1:functionName}: function ($2) {
+	$0
+}

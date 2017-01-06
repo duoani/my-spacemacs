@@ -1,0 +1,6 @@
+# key: proto
+# name: ClassName.prototype.fn
+# --
+${1:ClassName}.prototype.${2:methodName} = function ($3) {
+	$0
+};

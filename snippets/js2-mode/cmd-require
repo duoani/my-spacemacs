@@ -1,0 +1,4 @@
+# key: req
+# name: require(module)
+# --
+require('$0');

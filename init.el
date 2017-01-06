@@ -59,10 +59,13 @@ values."
      ;;(themes-megapack)
      git
      markdown
+     ;;git
+     ;; markdown
      org
-     (shell :variables
-            shell-default-height 30
-            shell-default-position 'bottom)
+     deft
+     ;; (shell :variables
+     ;;       shell-default-height 30
+     ;;       shell-default-position 'bottom)
      ;; spell-checking
      syntax-checking
      ;; version-control
@@ -71,7 +74,7 @@ values."
    ;; wrapped in a layer. If you need some configuration for these
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
-   dotspacemacs-additional-packages '(deft)
+   dotspacemacs-additional-packages '()
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
    ;; A list of packages that will not be installed and loaded.
@@ -109,7 +112,7 @@ values."
    ;; This variable has no effect if Emacs is launched with the parameter
    ;; `--insecure' which forces the value of this variable to nil.
    ;; (default t)
-   dotspacemacs-elpa-https t
+   dotspacemacs-elpa-https nil
    ;; Maximum allowed time in seconds to contact an ELPA repository.
    dotspacemacs-elpa-timeout 5
    ;; If non nil then spacemacs will check for updates at startup
@@ -276,7 +279,7 @@ values."
    ;; If non nil line numbers are turned on in all `prog-mode' and `text-mode'
    ;; derivatives. If set to `relative', also turns on relative line numbers.
    ;; (default nil)
-   dotspacemacs-line-numbers t
+   dotspacemacs-line-numbers nil
    ;; Code folding method. Possible values are `evil' and `origami'.
    ;; (default 'evil)
    dotspacemacs-folding-method 'evil
@@ -297,7 +300,7 @@ values."
    ;; List of search tool executable names. Spacemacs uses the first installed
    ;; tool of the list. Supported tools are `ag', `pt', `ack' and `grep'.
    ;; (default '("ag" "pt" "ack" "grep"))
-   dotspacemacs-search-tools '("ag" "pt" "ack" "grep")
+   dotspacemacs-search-tools '("grep" "ag" "pt" "ack")
    ;; The default package repository used if no explicit repository has been
    ;; specified with an installed package.
    ;; Not used for now. (default nil)
@@ -341,16 +344,11 @@ you should place your code here."
   (set-file-name-coding-system 'utf-8)
   (prefer-coding-system 'utf-8)
 
-  ;; global company mode
-  (global-company-mode)
-
-  (global-flycheck-mode)
-
   (define-key evil-normal-state-map (kbd "u") 'undo-tree-undo)
 
   ;; Chinese mono font (Just in Emacs with Graphic)
   (if (display-graphic-p)
-      (spacemacs//set-monospaced-font "Source Code Pro" "Yahei Mono" 14 14))
+      (spacemacs//set-monospaced-font "Source Code Pro" "Yahei Mono" 13 13))
 
   ;;解决org表格里面中英文对齐的问题
   ;; (when (configuration-layer/layer-usedp 'chinese)
@@ -462,22 +460,22 @@ you should place your code here."
   ;; Capture templates for: TODO tasks, Notes, appointments, phone calls, meetings, and org-protocol
   ;; the %i would copy the selected text into the template
   (setq org-capture-templates
-        '(("t" "Todo" entry (file "~/org/inbox.org")
+        '(("t" "Todo" entry (file+headline "~/org/inbox.org" "Tasks")
            "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
-          ("n" "Note" entry (file "~/org/inbox.org")
+          ("n" "Note" entry (file+headline "~/org/inbox.org" "Notes")
            "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t)
-          ("s" "Code Snippet" entry (file "~/org/inbox.org")
+          ("s" "Code Snippet" entry (file+headline "~/org/inbox.org" "Notes")
            "* %?\t%^g\n#+BEGIN_SRC %^{language}\n\n#+END_SRC")
-          ("l" "links" entry (file+headline "~/org/inbox.org" "Quick notes")
+          ("l" "links" entry (file+headline "~/org/inbox.org" "Notes")
            "* TODO [#C] %?\n  %i\n %a \n %U"
            :empty-lines 1)
           ("j" "Journal" entry (file+datetree "~/org/journal.org")
            "* %?\n%U\n" :clock-in t :clock-resume t)
-          ("m" "Meeting" entry (file "~/org/inbox.org")
+          ("m" "Meeting" entry (file+datetree "~/org/journal.org")
            "* MEETING with %? :MEETING:\n%U" :clock-in t :clock-resume t)
-          ("p" "Phone call" entry (file "~/org/inbox.org")
+          ("p" "Phone call" entry (file+datetree "~/org/journal.org")
            "* PHONE %? :PHONE:\n%U" :clock-in t :clock-resume t)
-          ("h" "Habit" entry (file "~/org/inbox.org")
+          ("h" "Habit" entry (file+datetree "~/org/inbox.org" "Habits")
            "* NEXT %?\n%U\n%a\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n")))
 
 
@@ -519,6 +517,14 @@ you should place your code here."
 
   (setq org-refile-target-verify-function 'duo/verify-refile-target)
 
+  ;; task estimate with column view
+  ; Set default column view headings: Task Effort Clock_Summary
+  (setq org-columns-default-format "%80ITEM(Task) %10Effort(Effort){:} %10CLOCKSUM")
+  ; global Effort estimate values
+  ; global STYLE property values for completion
+  (setq org-global-properties (quote (("Effort_ALL" . "0:15 0:30 0:45 1:00 2:00 3:00 4:00 5:00 6:00 0:00")
+                                      ("STYLE_ALL" . "habit"))))
+
   ;; deft
   (setq deft-extensions '("org"))
   (setq deft-directory "~/org")
@@ -534,6 +540,8 @@ you should place your code here."
   ;; eslint config file
   ;;(setq-default flycheck-eslint-rules-directories '("~/.eslintrc"))
   (setq-default flycheck-checker-error-threshold 1000)
+  (setq flycheck-check-syntax-automatically '(mode-enabled save))
+
   ;; disable js2-mode semicolon check
   (setq js2-strict-missing-semi-warning nil)
 
@@ -563,6 +571,8 @@ you should place your code here."
 
   (setq powerline-default-separator nil)
 
+  ;; yasnippet settings
+  (setq yas-snippet-dirs '("~/.spacemacs.d/snippets"))
   ;; user-config end
 )
 
