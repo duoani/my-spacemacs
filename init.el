@@ -76,14 +76,14 @@ values."
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
    ;; A list of packages that will not be installed and loaded.
-   dotspacemacs-excluded-packages '(
-                                    chinese-pyim
+   dotspacemacs-excluded-packages '(chinese-pyim
                                     chinese-wbim
                                     cute-jumper/fcitx.el
                                     coldnew/pangu-spacing
                                     org-bullets
                                     evil-unimpaired ;; melpa connect timeout
                                     tern
+                                    hl-todo
                                     )
    ;; Defines the behaviour of Spacemacs when installing packages.
    ;; Possible values are `used-only', `used-but-keep-unused' and `all'.
@@ -408,17 +408,15 @@ you should place your code here."
   (setq org-log-into-drawer t)
   ;; allows changing todo states with S-left and S-right skipping all of the normal processing when entering or leaving a todo state. This cycles through the todo states but skips setting timestamps and entering notes which is very convenient when all you want to do is fix up the status of an entry.
   (setq org-treat-S-cursor-todo-selection-as-state-change nil)
-  ;; Save clock data and notes in the LOGBOOK drawer
-  (setq org-clock-into-drawer t)
-  ;; Change task state to NEXT when clocking in
-  ;;(setq org-clock-in-switch-to-state "NEXT")
-  ;; Removes clocked tasks with 0:00 duration
-  (setq org-clock-out-remove-zero-time-clocks t)
   ;; org-mode keybindings
-  (global-set-key "\C-cl" 'org-store-link)
-  (global-set-key "\C-ca" 'org-agenda)
-  (global-set-key "\C-cc" 'org-capture)
-  (global-set-key "\C-cb" 'org-iswitchb)
+  (global-set-key (kbd "C-c l") 'org-store-link)
+  (global-set-key (kbd "C-c a") 'org-agenda)
+  (global-set-key (kbd "<f12>") 'org-agenda)
+  (global-set-key (kbd "C-c c") 'org-capture)
+  (global-set-key (kbd "C-c b") 'org-iswitchb)
+
+  ;; Goto currently clockly items
+  (global-set-key (kbd "<f11>") 'org-clock-goto)
 
   ;; Todo keywords
   (setq org-todo-keywords
@@ -453,6 +451,13 @@ you should place your code here."
                 ("NEXT" ("WAITING") ("CANCELED") ("HOLD"))
                 ("DONE" ("WAITING") ("CANCELED") ("HOLD")))))
 
+  (defun org-summary-todo (n-done n-not-done)
+    "Switch entry to DONE when all subentries are done, to TODO otherwise. Parent entry must be added a [%] or [/] tag to enable statistics."
+    (let (org-log-done org-log-states)   ; turn off logging
+      (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
+
+  (add-hook 'org-after-todo-statistics-hook 'org-summary-todo)
+
   ;; org-capture settings
   (setq org-directory "~/org")
   (setq org-default-notes-file "~/org/inbox.org")
@@ -461,9 +466,9 @@ you should place your code here."
   ;; the %i would copy the selected text into the template
   (setq org-capture-templates
         '(("t" "Todo" entry (file+headline "~/org/inbox.org" "Tasks")
-           "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
+           "* TODO %?\n%U\n" :clock-in t :clock-resume t)
           ("n" "Note" entry (file+headline "~/org/inbox.org" "Notes")
-           "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t)
+           "* %? :NOTE:\n%U\n" :clock-in t :clock-resume t)
           ("s" "Code Snippet" entry (file+headline "~/org/inbox.org" "Notes")
            "* %?\t%^g\n#+BEGIN_SRC %^{language}\n\n#+END_SRC")
           ("l" "links" entry (file+headline "~/org/inbox.org" "Notes")
@@ -489,6 +494,237 @@ you should place your code here."
 
   ;; org-agenda-files
   (setq org-agenda-files '("~/org/" "~/org/project/"))
+
+
+  ;; ====== Custom Agenda Views ======
+
+  ;; Do not dim blocked tasks
+  (setq org-agenda-dim-blocked-tasks nil)
+
+  ;; Compact the block agenda view
+  (setq org-agenda-compact-blocks t)
+
+  ;; custom agemda views
+  (setq org-agenda-custom-commands
+        (quote ((" " "Agenda"
+                 ((agenda "" nil)
+                  (tags "INBOX"
+                        ((org-agenda-overriding-header "Tasks to Refile")
+                         (org-tags-match-list-sublevels nil))))
+                 nil))))
+
+  ;; ====== Time Clocking ======
+  (global-set-key (kbd "<f9> I") 'duo/punch-in)
+  (global-set-key (kbd "<f9> O") 'duo/punch-out)
+  (global-set-key (kbd "<f9> SPC") 'duo/clock-in-last-task)
+  ;; Separate drawers for clocking and logs
+  (setq org-drawers (quote ("PROPERTIES" "LOGBOOK")))
+  ;; Save clock data and notes in the LOGBOOK drawer
+  (setq org-clock-into-drawer t)
+  ;; Removes clocked tasks with 0:00 duration
+  (setq org-clock-out-remove-zero-time-clocks t)
+  ;; Clock out when moving task to a done state
+  (setq org-clock-out-when-done t)
+  ;; Save the running clock and all clock history when exiting Emacs, load it on startup.
+  (setq org-clock-persist t)
+  ;; Resume clocking task when emacs is restarted
+  (org-clock-persistence-insinuate)
+  ;; Do not prompt to resume an active clock
+  (setq org-clock-persist-query-resume nil)
+  ;; Show lot of clocking history so it's easy to pick items off the C-F11 list
+  (setq org-clock-history-length 23)
+  ;; Resume clocking task on clock-in if the clock is open
+  (setq org-clock-in-resume t)
+  ;; Enable auto clock resolution for finding open clocks
+  (setq org-clock-auto-clock-resolution (quote when-no-clock-is-running))
+  ;; Include current clocking task in clock reports
+  (setq org-clock-report-include-clocking-task t)
+  ;; Change tasks to NEXT when clocking in
+  (setq org-clock-in-switch-to-state 'duo/clock-in-to-next)
+
+  (setq duo/keep-clock-running nil)
+
+  (defun duo/clock-in-to-next (kw)
+    "Switch a task from TODO to NEXT when clocking in.
+Skips capture tasks, projects, and subprojects.
+Switch projects and subprojects from NEXT back to TODO"
+    (when (not (and (boundp 'org-capture-mode) org-capture-mode))
+      (cond
+       ((and (member (org-get-todo-state) (list "TODO"))
+             (duo/is-task-p))
+        "NEXT")
+       ((and (member (org-get-todo-state) (list "NEXT"))
+             (duo/is-project-p))
+        "TODO"))))
+
+  (defun duo/is-project-p ()
+  "Any task with a todo keyword subtask"
+  (save-restriction
+    (widen)
+    (let ((has-subtask)
+          (subtree-end (save-excursion (org-end-of-subtree t)))
+          (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
+      (save-excursion
+        (forward-line 1)
+        (while (and (not has-subtask)
+                    (< (point) subtree-end)
+                    (re-search-forward "^\*+ " subtree-end t))
+          (when (member (org-get-todo-state) org-todo-keywords-1)
+            (setq has-subtask t))))
+      (and is-a-task has-subtask))))
+
+  (defun duo/is-project-subtree-p ()
+    "Any task with a todo keyword that is in a project subtree.
+Callers of this function already widen the buffer view."
+    (let ((task (save-excursion (org-back-to-heading 'invisible-ok)
+                                (point))))
+      (save-excursion
+        (duo/find-project-task)
+        (if (equal (point) task)
+            nil
+          t))))
+
+  (defun duo/is-task-p ()
+    "Any task with a todo keyword and no subtask"
+    (save-restriction
+      (widen)
+      (let ((has-subtask)
+            (subtree-end (save-excursion (org-end-of-subtree t)))
+            (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
+        (save-excursion
+          (forward-line 1)
+          (while (and (not has-subtask)
+                      (< (point) subtree-end)
+                      (re-search-forward "^\*+ " subtree-end t))
+            (when (member (org-get-todo-state) org-todo-keywords-1)
+              (setq has-subtask t))))
+        (and is-a-task (not has-subtask)))))
+
+  (defun duo/is-subproject-p ()
+    "Any task which is a subtask of another project"
+    (let ((is-subproject)
+          (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
+      (save-excursion
+        (while (and (not is-subproject) (org-up-heading-safe))
+          (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
+            (setq is-subproject t))))
+      (and is-a-task is-subproject)))
+
+  (defun duo/find-project-task ()
+    "Move point to the parent (project) task if any"
+    (save-restriction
+      (widen)
+      (let ((parent-task (save-excursion (org-back-to-heading 'invisible-ok) (point))))
+        (while (org-up-heading-safe)
+          (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
+            (setq parent-task (point))))
+        (goto-char parent-task)
+        parent-task)))
+
+  (defun duo/punch-in (arg)
+    "Start continuous clocking and set the default task to the
+selected task.  If no task is selected set the Organization task
+as the default task."
+    (interactive "p")
+    (setq duo/keep-clock-running t)
+    (if (equal major-mode 'org-agenda-mode)
+        ;;
+        ;; We're in the agenda
+        ;;
+        (let* ((marker (org-get-at-bol 'org-hd-marker))
+               (tags (org-with-point-at marker (org-get-tags-at))))
+          (if (and (eq arg 4) tags)
+              (org-agenda-clock-in '(16))
+            (duo/clock-in-organization-task-as-default)))
+      ;;
+      ;; We are not in the agenda
+      ;;
+      (save-restriction
+        (widen)
+        ; Find the tags on the current task
+        (if (and (equal major-mode 'org-mode) (not (org-before-first-heading-p)) (eq arg 4))
+            (org-clock-in '(16))
+          (duo/clock-in-organization-task-as-default)))))
+
+  (defun duo/punch-out ()
+    (interactive)
+    (setq duo/keep-clock-running nil)
+    (when (org-clock-is-active)
+      (org-clock-out))
+    (org-agenda-remove-restriction-lock))
+
+  (defvar duo/organization-task-id "eb155a82-92b2-4f25-a3c6-0304591af2f9")
+
+  (defun duo/clock-in-organization-task-as-default ()
+    (interactive)
+    (org-with-point-at (org-id-find duo/organization-task-id 'marker)
+      (org-clock-in '(16))))
+
+  (defun duo/clock-in-default-task ()
+    (save-excursion
+      (org-with-point-at org-clock-default-task
+        (org-clock-in))))
+
+  (defun duo/clock-in-parent-task ()
+    "Move point to the parent (project) task if any and clock in"
+    (let ((parent-task))
+      (save-excursion
+        (save-restriction
+          (widen)
+          (while (and (not parent-task) (org-up-heading-safe))
+            (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
+              (setq parent-task (point))))
+          (if parent-task
+              (org-with-point-at parent-task
+                (org-clock-in))
+            (when duo/keep-clock-running
+              (duo/clock-in-default-task)))))))
+
+  (defun duo/clock-out-maybe ()
+    (when (and duo/keep-clock-running
+               (not org-clock-clocking-in)
+               (marker-buffer org-clock-default-task)
+               (not org-clock-resolving-clocks-due-to-idleness))
+      (duo/clock-in-parent-task)))
+
+  (add-hook 'org-clock-out-hook 'duo/clock-out-maybe 'append)
+
+  (defun duo/clock-in-last-task (arg)
+    "Clock in the interrupted task if there is one
+Skip the default task and get the next one.
+A prefix arg forces clock in of the default task."
+    (interactive "p")
+    (let ((clock-in-to-task
+           (cond
+            ((eq arg 4) org-clock-default-task)
+            ((and (org-clock-is-active)
+                  (equal org-clock-default-task (cadr org-clock-history)))
+             (caddr org-clock-history))
+            ((org-clock-is-active) (cadr org-clock-history))
+            ((equal org-clock-default-task (car org-clock-history)) (cadr org-clock-history))
+            (t (car org-clock-history)))))
+      (widen)
+      (org-with-point-at clock-in-to-task
+        (org-clock-in nil))))
+
+  ;; ====== Time Report =======
+  ;; Agenda clock report parameters
+  (setq org-agenda-clockreport-parameter-plist
+        (quote (:link t :maxlevel 5 :fileskip0 t :compact t :narrow 80)))
+
+  ;; ====== Task Estimate ======
+  ;; task estimate with column view
+  ; Set default column view headings: Task Effort Clock_Summary
+  (setq org-columns-default-format "%80ITEM(Task) %10Effort(Effort){:} %10CLOCKSUM")
+  ; global Effort estimate values
+  ; global STYLE property values for completion
+  (setq org-global-properties (quote (("Effort_ALL" . "0:15 0:30 0:45 1:00 2:00 3:00 4:00 5:00 6:00 0:00")
+                                      ("STYLE_ALL" . "habit"))))
+  ;; Agenda log mode items to display (closed and state changes by default)
+  (setq org-agenda-log-mode-items (quote (closed state)))
+
+
+  ;; ====== Exporting =======
 
   ;; auto section number to 2 on org export
   (setq-default org-export-with-section-numbers 2)
@@ -525,19 +761,14 @@ you should place your code here."
 
   (setq org-refile-target-verify-function 'duo/verify-refile-target)
 
-  ;; task estimate with column view
-  ; Set default column view headings: Task Effort Clock_Summary
-  (setq org-columns-default-format "%80ITEM(Task) %10Effort(Effort){:} %10CLOCKSUM")
-  ; global Effort estimate values
-  ; global STYLE property values for completion
-  (setq org-global-properties (quote (("Effort_ALL" . "0:15 0:30 0:45 1:00 2:00 3:00 4:00 5:00 6:00 0:00")
-                                      ("STYLE_ALL" . "habit"))))
-
   ;; deft
   (setq deft-extensions '("org"))
   (setq deft-directory "~/org")
   (setq deft-recursive t)
   (setq deft-use-filename-as-title t)
+
+  ;; org-export
+  (setq org-export-backends '(ascii html md))
 
   ;; auto delete trailing whitespace
   (add-hook 'local-write-file-hooks
