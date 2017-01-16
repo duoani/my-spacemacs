@@ -31,7 +31,6 @@ values."
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
    '(
-     themes-megapack
      markdown
      (javascript
       :variables
@@ -59,13 +58,10 @@ values."
      ;;(themes-megapack)
      git
      markdown
-     ;;git
-     ;; markdown
      org
-     deft
-     ;; (shell :variables
-     ;;       shell-default-height 30
-     ;;       shell-default-position 'bottom)
+     (shell :variables
+            shell-default-height 30
+            shell-default-position 'bottom)
      ;; spell-checking
      syntax-checking
      ;; version-control
@@ -74,19 +70,17 @@ values."
    ;; wrapped in a layer. If you need some configuration for these
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
-   dotspacemacs-additional-packages '()
+   dotspacemacs-additional-packages '(deft)
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
    ;; A list of packages that will not be installed and loaded.
-   dotspacemacs-excluded-packages '(chinese-pyim
+   dotspacemacs-excluded-packages '(
+                                    chinese-pyim
                                     chinese-wbim
                                     cute-jumper/fcitx.el
                                     coldnew/pangu-spacing
                                     org-bullets
-                                    evil-unimpaired ;; melpa connect timeout
                                     tern
-                                    hl-todo
-                                    eshell-v
                                     )
    ;; Defines the behaviour of Spacemacs when installing packages.
    ;; Possible values are `used-only', `used-but-keep-unused' and `all'.
@@ -112,7 +106,7 @@ values."
    ;; This variable has no effect if Emacs is launched with the parameter
    ;; `--insecure' which forces the value of this variable to nil.
    ;; (default t)
-   dotspacemacs-elpa-https nil
+   dotspacemacs-elpa-https t
    ;; Maximum allowed time in seconds to contact an ELPA repository.
    dotspacemacs-elpa-timeout 5
    ;; If non nil then spacemacs will check for updates at startup
@@ -162,8 +156,8 @@ values."
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
-   dotspacemacs-default-font '("Source Code Pro"
-                               :size 13
+   dotspacemacs-default-font '("Consolas"
+                               :size 14
                                :weight normal
                                :width normal
                                :powerline-scale 1)
@@ -279,7 +273,7 @@ values."
    ;; If non nil line numbers are turned on in all `prog-mode' and `text-mode'
    ;; derivatives. If set to `relative', also turns on relative line numbers.
    ;; (default nil)
-   dotspacemacs-line-numbers nil
+   dotspacemacs-line-numbers t
    ;; Code folding method. Possible values are `evil' and `origami'.
    ;; (default 'evil)
    dotspacemacs-folding-method 'evil
@@ -300,7 +294,7 @@ values."
    ;; List of search tool executable names. Spacemacs uses the first installed
    ;; tool of the list. Supported tools are `ag', `pt', `ack' and `grep'.
    ;; (default '("ag" "pt" "ack" "grep"))
-   dotspacemacs-search-tools '("grep" "ag" "pt" "ack")
+   dotspacemacs-search-tools '("ag" "pt" "ack" "grep")
    ;; The default package repository used if no explicit repository has been
    ;; specified with an installed package.
    ;; Not used for now. (default nil)
@@ -331,32 +325,28 @@ explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
 
   ;; encode settings
-  (set-keyboard-coding-system 'utf-8)
-  (set-clipboard-coding-system 'utf-8)
-  (set-terminal-coding-system 'utf-8)
-  (set-buffer-file-coding-system 'utf-8)
-  (set-default-coding-systems 'utf-8)
-  (set-selection-coding-system 'utf-8)
-  (modify-coding-system-alist 'process "*" 'utf-8)
-  (setq default-process-coding-system '(utf-8 . utf-8))
-  (setq default-buffer-file-coding-system 'utf-8)
-  (setq-default pathname-coding-system 'utf-8)
-  (set-file-name-coding-system 'utf-8)
-  (prefer-coding-system 'utf-8)
+  ;; (setq coding-system-for-write 'utf-8)
+  ;; (set-keyboard-coding-system 'utf-8)
+  ;; (set-clipboard-coding-system 'utf-8)
+  ;; (set-terminal-coding-system 'utf-8)
+  ;; (set-buffer-file-coding-system 'utf-8)
+  ;; (set-default-coding-systems 'utf-8)
+  ;; (unless (eq system-type 'windows-nt) (set-selection-coding-system 'utf-8))
+  ;;(set-selection-coding-system 'utf-8)
+  ;; (modify-coding-system-alist 'process "*" 'utf-8)
+  ;; (setq default-process-coding-system '(utf-8 . utf-8))
+  ;; (setq default-buffer-file-coding-system 'utf-8)
+  ;; (setq-default pathname-coding-system 'utf-8)
+  ;; (set-file-name-coding-system 'utf-8)
+  ;; (prefer-coding-system 'utf-8-dos)
+  (prefer-coding-system 'utf-8-unix)
+
+  ;; global company mode
+  (global-company-mode)
+
+  (global-flycheck-mode)
 
   (define-key evil-normal-state-map (kbd "u") 'undo-tree-undo)
-
-  ;; Chinese mono font (Just in Emacs with Graphic)
-  (if (display-graphic-p)
-      (spacemacs//set-monospaced-font "Source Code Pro" "Yahei Mono" 13 13))
-
-  ;;解决org表格里面中英文对齐的问题
-  ;; (when (configuration-layer/layer-usedp 'chinese)
-  ;;   (when (and (spacemacs/system-is-mac) window-system)
-  ;;     (spacemacs//set-monospaced-font "Source Code Pro" "Hiragino Sans GB" 14 16)))
-
-  (setq tramp-ssh-controlmaster-options
-        "-o ControlMaster=auto -o ControlPath='tramp.%%C' -o ControlPersist=no")
 
   ;; indent to 2 spaces
   (setq-default js2-basic-offset 2) ;; js indent
@@ -407,16 +397,18 @@ you should place your code here."
   (setq org-log-into-drawer t)
   ;; allows changing todo states with S-left and S-right skipping all of the normal processing when entering or leaving a todo state. This cycles through the todo states but skips setting timestamps and entering notes which is very convenient when all you want to do is fix up the status of an entry.
   (setq org-treat-S-cursor-todo-selection-as-state-change nil)
-  
-  ;; org-mode keybindings
-  (global-set-key (kbd "C-c l") 'org-store-link)
-  (global-set-key (kbd "C-c a") 'org-agenda)
-  (global-set-key (kbd "<f12>") 'org-agenda)
-  (global-set-key (kbd "C-c c") 'org-capture)
-  (global-set-key (kbd "C-c b") 'org-iswitchb)
+  ;; Save clock data and notes in the LOGBOOK drawer
+  (setq org-clock-into-drawer t)
+  ;; Change task state to NEXT when clocking in
+  ;;(setq org-clock-in-switch-to-state "NEXT")
+  ;; Removes clocked tasks with 0:00 duration
+  (setq org-clock-out-remove-zero-time-clocks t)
 
-  ;; Goto currently clockly items
-  (global-set-key (kbd "<f11>") 'org-clock-goto)
+  ;; org-mode key bindings
+  (global-set-key "\C-cl" 'org-store-link)
+  (global-set-key "\C-ca" 'org-agenda)
+  (global-set-key "\C-cc" 'org-capture)
+  (global-set-key "\C-cb" 'org-iswitchb)
 
   ;; Todo keywords
   (setq org-todo-keywords
@@ -451,13 +443,6 @@ you should place your code here."
                 ("NEXT" ("WAITING") ("CANCELED") ("HOLD"))
                 ("DONE" ("WAITING") ("CANCELED") ("HOLD")))))
 
-  (defun org-summary-todo (n-done n-not-done)
-    "Switch entry to DONE when all subentries are done, to TODO otherwise. Parent entry must be added a [%] or [/] tag to enable statistics."
-    (let (org-log-done org-log-states)   ; turn off logging
-      (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
-
-  (add-hook 'org-after-todo-statistics-hook 'org-summary-todo)
-
   ;; org-capture settings
   (setq org-directory "~/org")
   (setq org-default-notes-file "~/org/inbox.org")
@@ -465,258 +450,27 @@ you should place your code here."
   ;; Capture templates for: TODO tasks, Notes, appointments, phone calls, meetings, and org-protocol
   ;; the %i would copy the selected text into the template
   (setq org-capture-templates
-        '(("t" "Todo" entry (file+headline "~/org/inbox.org" "Tasks")
-           "* TODO %?\n%U\n" :clock-in t :clock-resume t)
-          ("n" "Note" entry (file+headline "~/org/inbox.org" "Notes")
-           "* %? :NOTE:\n%U\n" :clock-in t :clock-resume t)
-          ("s" "Code Snippet" entry (file+headline "~/org/inbox.org" "Notes")
+        '(("t" "Todo" entry (file "~/org/inbox.org")
+           "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
+          ("n" "Note" entry (file "~/org/inbox.org")
+           "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t)
+          ("s" "Code Snippet" entry (file "~/org/inbox.org")
            "* %?\t%^g\n#+BEGIN_SRC %^{language}\n\n#+END_SRC")
-          ("l" "links" entry (file+headline "~/org/inbox.org" "Notes")
+          ("l" "links" entry (file+headline "~/org/inbox.org" "Quick notes")
            "* TODO [#C] %?\n  %i\n %a \n %U"
            :empty-lines 1)
           ("j" "Journal" entry (file+datetree "~/org/journal.org")
            "* %?\n%U\n" :clock-in t :clock-resume t)
-          ("m" "Meeting" entry (file+datetree "~/org/journal.org")
+          ("m" "Meeting" entry (file "~/org/inbox.org")
            "* MEETING with %? :MEETING:\n%U" :clock-in t :clock-resume t)
-          ("p" "Phone call" entry (file+datetree "~/org/journal.org")
+          ("p" "Phone call" entry (file "~/org/inbox.org")
            "* PHONE %? :PHONE:\n%U" :clock-in t :clock-resume t)
-          ("h" "Habit" entry (file+datetree "~/org/inbox.org" "Habits")
+          ("h" "Habit" entry (file "~/org/inbox.org")
            "* NEXT %?\n%U\n%a\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n")))
 
 
   ;; org-agenda-files
   (setq org-agenda-files '("~/org/" "~/org/project/"))
-
-
-  ;; ====== Custom Agenda Views ======
-
-  ;; Do not dim blocked tasks
-  (setq org-agenda-dim-blocked-tasks nil)
-
-  ;; Compact the block agenda view
-  (setq org-agenda-compact-blocks t)
-
-  ;; custom agemda views
-  (setq org-agenda-custom-commands
-        (quote ((" " "Agenda"
-                 ((agenda "" nil)
-                  (tags "INBOX"
-                        ((org-agenda-overriding-header "Tasks to Refile")
-                         (org-tags-match-list-sublevels nil))))
-                 nil))))
-
-  ;; ====== Time Clocking ======
-  (global-set-key (kbd "<f9> I") 'duo/punch-in)
-  (global-set-key (kbd "<f9> O") 'duo/punch-out)
-  (global-set-key (kbd "<f9> SPC") 'duo/clock-in-last-task)
-  ;; Separate drawers for clocking and logs
-  (setq org-drawers (quote ("PROPERTIES" "LOGBOOK")))
-  ;; Save clock data and notes in the LOGBOOK drawer
-  (setq org-clock-into-drawer t)
-  ;; Removes clocked tasks with 0:00 duration
-  (setq org-clock-out-remove-zero-time-clocks t)
-  ;; Clock out when moving task to a done state
-  (setq org-clock-out-when-done t)
-  ;; Save the running clock and all clock history when exiting Emacs, load it on startup.
-  (setq org-clock-persist t)
-  ;; Resume clocking task when emacs is restarted
-  (org-clock-persistence-insinuate)
-  ;; Do not prompt to resume an active clock
-  (setq org-clock-persist-query-resume nil)
-  ;; Show lot of clocking history so it's easy to pick items off the C-F11 list
-  (setq org-clock-history-length 23)
-  ;; Resume clocking task on clock-in if the clock is open
-  (setq org-clock-in-resume t)
-  ;; Enable auto clock resolution for finding open clocks
-  (setq org-clock-auto-clock-resolution (quote when-no-clock-is-running))
-  ;; Include current clocking task in clock reports
-  (setq org-clock-report-include-clocking-task t)
-  ;; Change tasks to NEXT when clocking in
-  (setq org-clock-in-switch-to-state 'duo/clock-in-to-next)
-
-  (setq duo/keep-clock-running nil)
-
-  (defun duo/clock-in-to-next (kw)
-    "Switch a task from TODO to NEXT when clocking in.
-Skips capture tasks, projects, and subprojects.
-Switch projects and subprojects from NEXT back to TODO"
-    (when (not (and (boundp 'org-capture-mode) org-capture-mode))
-      (cond
-       ((and (member (org-get-todo-state) (list "TODO"))
-             (duo/is-task-p))
-        "NEXT")
-       ((and (member (org-get-todo-state) (list "NEXT"))
-             (duo/is-project-p))
-        "TODO"))))
-
-  (defun duo/is-project-p ()
-  "Any task with a todo keyword subtask"
-  (save-restriction
-    (widen)
-    (let ((has-subtask)
-          (subtree-end (save-excursion (org-end-of-subtree t)))
-          (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
-      (save-excursion
-        (forward-line 1)
-        (while (and (not has-subtask)
-                    (< (point) subtree-end)
-                    (re-search-forward "^\*+ " subtree-end t))
-          (when (member (org-get-todo-state) org-todo-keywords-1)
-            (setq has-subtask t))))
-      (and is-a-task has-subtask))))
-
-  (defun duo/is-project-subtree-p ()
-    "Any task with a todo keyword that is in a project subtree.
-Callers of this function already widen the buffer view."
-    (let ((task (save-excursion (org-back-to-heading 'invisible-ok)
-                                (point))))
-      (save-excursion
-        (duo/find-project-task)
-        (if (equal (point) task)
-            nil
-          t))))
-
-  (defun duo/is-task-p ()
-    "Any task with a todo keyword and no subtask"
-    (save-restriction
-      (widen)
-      (let ((has-subtask)
-            (subtree-end (save-excursion (org-end-of-subtree t)))
-            (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
-        (save-excursion
-          (forward-line 1)
-          (while (and (not has-subtask)
-                      (< (point) subtree-end)
-                      (re-search-forward "^\*+ " subtree-end t))
-            (when (member (org-get-todo-state) org-todo-keywords-1)
-              (setq has-subtask t))))
-        (and is-a-task (not has-subtask)))))
-
-  (defun duo/is-subproject-p ()
-    "Any task which is a subtask of another project"
-    (let ((is-subproject)
-          (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
-      (save-excursion
-        (while (and (not is-subproject) (org-up-heading-safe))
-          (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
-            (setq is-subproject t))))
-      (and is-a-task is-subproject)))
-
-  (defun duo/find-project-task ()
-    "Move point to the parent (project) task if any"
-    (save-restriction
-      (widen)
-      (let ((parent-task (save-excursion (org-back-to-heading 'invisible-ok) (point))))
-        (while (org-up-heading-safe)
-          (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
-            (setq parent-task (point))))
-        (goto-char parent-task)
-        parent-task)))
-
-  (defun duo/punch-in (arg)
-    "Start continuous clocking and set the default task to the
-selected task.  If no task is selected set the Organization task
-as the default task."
-    (interactive "p")
-    (setq duo/keep-clock-running t)
-    (if (equal major-mode 'org-agenda-mode)
-        ;;
-        ;; We're in the agenda
-        ;;
-        (let* ((marker (org-get-at-bol 'org-hd-marker))
-               (tags (org-with-point-at marker (org-get-tags-at))))
-          (if (and (eq arg 4) tags)
-              (org-agenda-clock-in '(16))
-            (duo/clock-in-organization-task-as-default)))
-      ;;
-      ;; We are not in the agenda
-      ;;
-      (save-restriction
-        (widen)
-        ; Find the tags on the current task
-        (if (and (equal major-mode 'org-mode) (not (org-before-first-heading-p)) (eq arg 4))
-            (org-clock-in '(16))
-          (duo/clock-in-organization-task-as-default)))))
-
-  (defun duo/punch-out ()
-    (interactive)
-    (setq duo/keep-clock-running nil)
-    (when (org-clock-is-active)
-      (org-clock-out))
-    (org-agenda-remove-restriction-lock))
-
-  (defvar duo/organization-task-id "eb155a82-92b2-4f25-a3c6-0304591af2f9")
-
-  (defun duo/clock-in-organization-task-as-default ()
-    (interactive)
-    (org-with-point-at (org-id-find duo/organization-task-id 'marker)
-      (org-clock-in '(16))))
-
-  (defun duo/clock-in-default-task ()
-    (save-excursion
-      (org-with-point-at org-clock-default-task
-        (org-clock-in))))
-
-  (defun duo/clock-in-parent-task ()
-    "Move point to the parent (project) task if any and clock in"
-    (let ((parent-task))
-      (save-excursion
-        (save-restriction
-          (widen)
-          (while (and (not parent-task) (org-up-heading-safe))
-            (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
-              (setq parent-task (point))))
-          (if parent-task
-              (org-with-point-at parent-task
-                (org-clock-in))
-            (when duo/keep-clock-running
-              (duo/clock-in-default-task)))))))
-
-  (defun duo/clock-out-maybe ()
-    (when (and duo/keep-clock-running
-               (not org-clock-clocking-in)
-               (marker-buffer org-clock-default-task)
-               (not org-clock-resolving-clocks-due-to-idleness))
-      (duo/clock-in-parent-task)))
-
-  (add-hook 'org-clock-out-hook 'duo/clock-out-maybe 'append)
-
-  (defun duo/clock-in-last-task (arg)
-    "Clock in the interrupted task if there is one
-Skip the default task and get the next one.
-A prefix arg forces clock in of the default task."
-    (interactive "p")
-    (let ((clock-in-to-task
-           (cond
-            ((eq arg 4) org-clock-default-task)
-            ((and (org-clock-is-active)
-                  (equal org-clock-default-task (cadr org-clock-history)))
-             (caddr org-clock-history))
-            ((org-clock-is-active) (cadr org-clock-history))
-            ((equal org-clock-default-task (car org-clock-history)) (cadr org-clock-history))
-            (t (car org-clock-history)))))
-      (widen)
-      (org-with-point-at clock-in-to-task
-        (org-clock-in nil))))
-
-  ;; ====== Time Report =======
-  ;; Agenda clock report parameters
-  (setq org-agenda-clockreport-parameter-plist
-        (quote (:link t :maxlevel 5 :fileskip0 t :compact t :narrow 80)))
-
-  ;; ====== Task Estimate ======
-  ;; task estimate with column view
-  ; Set default column view headings: Task Effort Clock_Summary
-  (setq org-columns-default-format "%80ITEM(Task) %10Effort(Effort){:} %10CLOCKSUM")
-  ; global Effort estimate values
-  ; global STYLE property values for completion
-  (setq org-global-properties (quote (("Effort_ALL" . "0:15 0:30 0:45 1:00 2:00 3:00 4:00 5:00 6:00 0:00")
-                                      ("STYLE_ALL" . "habit"))))
-  ;; Agenda log mode items to display (closed and state changes by default)
-  (setq org-agenda-log-mode-items (quote (closed state)))
-
-
-  ;; ====== Exporting =======
 
   ;; auto section number to 2 on org export
   (setq-default org-export-with-section-numbers 2)
@@ -759,9 +513,6 @@ A prefix arg forces clock in of the default task."
   (setq deft-recursive t)
   (setq deft-use-filename-as-title t)
 
-  ;; org-export
-  (setq org-export-backends '(ascii html md))
-
   ;; auto delete trailing whitespace
   (add-hook 'local-write-file-hooks
     (lambda ()
@@ -771,8 +522,6 @@ A prefix arg forces clock in of the default task."
   ;; eslint config file
   ;;(setq-default flycheck-eslint-rules-directories '("~/.eslintrc"))
   (setq-default flycheck-checker-error-threshold 1000)
-  (setq flycheck-check-syntax-automatically '(mode-enabled save))
-
   ;; disable js2-mode semicolon check
   (setq js2-strict-missing-semi-warning nil)
 
@@ -786,6 +535,11 @@ A prefix arg forces clock in of the default task."
   (global-company-mode)
 
   (define-key evil-normal-state-map (kbd "u") 'undo-tree-undo)
+
+  ;; Chinese mono font
+  (spacemacs//set-monospaced-font "Consolas" "Yahei Mono" 14 14)
+  (setq tramp-ssh-controlmaster-options
+        "-o ControlMaster=auto -o ControlPath='tramp.%%C' -o ControlPersist=no")
 
   ;; turn on flycheck globally
   (global-flycheck-mode)
@@ -802,8 +556,6 @@ A prefix arg forces clock in of the default task."
 
   (setq powerline-default-separator nil)
 
-  ;; yasnippet settings
-  (setq yas-snippet-dirs '("~/.spacemacs.d/snippets"))
   ;; user-config end
 )
 
@@ -814,12 +566,9 @@ A prefix arg forces clock in of the default task."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(org-agenda-files
-   (quote
-    ("~/org/project/sdk.org" "/Users/duoani/org/emacs.org" "/Users/duoani/org/eslint.org" "/Users/duoani/org/git.org" "/Users/duoani/org/inbox.org" "/Users/duoani/org/journal.org" "/Users/duoani/org/links.org" "/Users/duoani/org/meeting.org" "/Users/duoani/org/project/ad-admin.org" "/Users/duoani/org/project/ad.org" "/Users/duoani/org/project/site.org")))
  '(package-selected-packages
    (quote
-    (org-projectile org-present org org-pomodoro alert log4e gntp org-download htmlize gnuplot deft company-quickhelp zonokai-theme zenburn-theme zen-and-art-theme underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme tronesque-theme toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme sunny-day-theme sublime-themes subatomic256-theme subatomic-theme spacegray-theme soothe-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme seti-theme reverse-theme railscasts-theme purple-haze-theme professional-theme planet-theme phoenix-dark-pink-theme phoenix-dark-mono-theme pastels-on-dark-theme organic-green-theme omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme niflheim-theme naquadah-theme mustang-theme monokai-theme monochrome-theme molokai-theme moe-theme minimal-theme material-theme majapahit-theme lush-theme light-soap-theme jbeans-theme jazz-theme ir-black-theme inkpot-theme heroku-theme hemisu-theme hc-zenburn-theme gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme gandalf-theme flatui-theme flatland-theme firebelly-theme farmhouse-theme espresso-theme dracula-theme django-theme darktooth-theme darkokai-theme darkmine-theme darkburn-theme dakrone-theme cyberpunk-theme color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized clues-theme cherry-blossom-theme busybee-theme bubbleberry-theme birds-of-paradise-plus-theme badwolf-theme apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes afternoon-theme wgrep smex ivy-hydra counsel-projectile counsel swiper ivy js2-refactor helm-c-yasnippet auto-yasnippet youdao-dictionary names chinese-word-at-point web-mode web-beautify tagedit slim-mode scss-mode sass-mode pug-mode mmm-mode markdown-toc markdown-mode livid-mode skewer-mode simple-httpd less-css-mode json-mode json-snatcher json-reformat multiple-cursors js2-mode js-doc helm-css-scss helm-company haml-mode gh-md flycheck-pos-tip flycheck emmet-mode company-web web-completion-data company-tern dash-functional tern company-statistics company coffee-mode yasnippet ac-ispell auto-complete pangu-spacing mwim find-by-pinyin-dired chinese-pyim chinese-pyim-basedict pos-tip ace-pinyin pinyinlib ace-jump-mode ws-butler window-numbering which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib package-build spacemacs-theme))))
+    (org-projectile org-present org-pomodoro alert log4e gntp org-download htmlize gnuplot deft smeargle orgit org magit-gitflow gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link evil-magit magit magit-popup git-commit with-editor mwim flyspell-correct-ivy flyspell-correct flycheck-pos-tip pos-tip company-web web-completion-data company-tern dash-functional company-statistics auto-yasnippet auto-dictionary ac-ispell auto-complete flycheck company helm-themes helm-swoop helm-projectile helm-mode-manager helm-flx helm-descbinds helm-ag ace-jump-helm-line mmm-mode markdown-toc markdown-mode gh-md zonokai-theme zenburn-theme zen-and-art-theme underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme tronesque-theme toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme sunny-day-theme sublime-themes subatomic256-theme subatomic-theme spacegray-theme soothe-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme seti-theme reverse-theme railscasts-theme purple-haze-theme professional-theme planet-theme phoenix-dark-pink-theme phoenix-dark-mono-theme pastels-on-dark-theme organic-green-theme omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme niflheim-theme naquadah-theme mustang-theme monokai-theme monochrome-theme molokai-theme moe-theme minimal-theme material-theme majapahit-theme lush-theme light-soap-theme jbeans-theme jazz-theme ir-black-theme inkpot-theme heroku-theme hemisu-theme hc-zenburn-theme gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme gandalf-theme flatui-theme flatland-theme firebelly-theme farmhouse-theme espresso-theme dracula-theme django-theme darktooth-theme darkokai-theme darkmine-theme darkburn-theme dakrone-theme cyberpunk-theme color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized clues-theme cherry-blossom-theme busybee-theme bubbleberry-theme birds-of-paradise-plus-theme badwolf-theme apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes afternoon-theme helm-css-scss evil-unimpaired tern youdao-dictionary names chinese-word-at-point pangu-spacing find-by-pinyin-dired ace-pinyin pinyinlib ace-jump-mode web-beautify livid-mode skewer-mode simple-httpd json-mode json-snatcher json-reformat js2-refactor yasnippet multiple-cursors js2-mode js-doc coffee-mode web-mode tagedit slim-mode scss-mode sass-mode pug-mode less-css-mode haml-mode emmet-mode ws-butler window-numbering which-key wgrep volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline smex restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib org-bullets open-junk-file neotree move-text macrostep lorem-ipsum linum-relative link-hint ivy-hydra info+ indent-guide ido-vertical-mode hydra hungry-delete hl-todo highlight-parentheses highlight-numbers parent-mode highlight-indentation hide-comnt help-fns+ helm-make helm helm-core google-translate golden-ratio flx-ido flx fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state smartparens evil-indent-plus evil-iedit-state iedit evil-exchange evil-escape evil-ediff evil-args evil-anzu anzu evil goto-chg undo-tree eval-sexp-fu highlight elisp-slime-nav dumb-jump popup f s diminish define-word counsel-projectile projectile pkg-info epl counsel swiper ivy spacemacs-theme quelpa column-enforce-mode clean-aindent-mode bind-map bind-key auto-highlight-symbol auto-compile async aggressive-indent adaptive-wrap ace-window ace-link))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
