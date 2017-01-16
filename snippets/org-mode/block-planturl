@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: block-planturl
+# key: <suml
+# --
+#+BEGIN_SRC plantuml :file ./img/$1.png
+$0
+#+END_SRC
