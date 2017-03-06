@@ -57,15 +57,14 @@ values."
       :variables chinese-enable-youdao-dict t
       )
      ;;(themes-megapack)
+     graphviz
      git
      markdown
-     ;;git
-     ;; markdown
      org
      deft
-     ;; (shell :variables
-     ;;       shell-default-height 30
-     ;;       shell-default-position 'bottom)
+     (shell :variables
+            shell-default-height 30
+            shell-default-position 'bottom)
      ;; spell-checking
      syntax-checking
      ;; version-control
@@ -112,7 +111,7 @@ values."
    ;; This variable has no effect if Emacs is launched with the parameter
    ;; `--insecure' which forces the value of this variable to nil.
    ;; (default t)
-   dotspacemacs-elpa-https nil
+   dotspacemacs-elpa-https t
    ;; Maximum allowed time in seconds to contact an ELPA repository.
    dotspacemacs-elpa-timeout 5
    ;; If non nil then spacemacs will check for updates at startup
@@ -235,7 +234,7 @@ values."
    dotspacemacs-helm-use-fuzzy 'always
    ;; If non nil the paste micro-state is enabled. When enabled pressing `p`
    ;; several times cycle between the kill ring content. (default nil)
-   dotspacemacs-enable-paste-transient-state nil
+   dotspacemacs-enable-paste-transient-state t
    ;; Which-key delay in seconds. The which-key buffer is the popup listing
    ;; the commands bound to the current keystroke sequence. (default 0.4)
    dotspacemacs-which-key-delay 0.4
@@ -355,6 +354,8 @@ you should place your code here."
   ;;   (when (and (spacemacs/system-is-mac) window-system)
   ;;     (spacemacs//set-monospaced-font "Source Code Pro" "Hiragino Sans GB" 14 16)))
 
+  (set-default 'truncate-lines t)
+
   (setq tramp-ssh-controlmaster-options
         "-o ControlMaster=auto -o ControlPath='tramp.%%C' -o ControlPersist=no")
 
@@ -383,7 +384,7 @@ you should place your code here."
         ("html" . (ac-source-words-in-buffer ac-source-abbrev)))))
     (add-hook 'web-mode-hook 'my-web-mode-hook)
 
-    (add-to-list 'auto-mode-alist '("/\\(html\\|templates\\)/.*\\.vue\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("/.*\\.vue\\'" . web-mode))
 
     (defun my-js2-mode-hook ()
       "Hooks for js2-mode."
@@ -417,6 +418,50 @@ you should place your code here."
 
   ;; Goto currently clockly items
   (global-set-key (kbd "<f11>") 'org-clock-goto)
+
+  (setq org-tag-alist '((:startgroup .nil)
+                        ("@home" . ?h)
+                        ("@work" . ?w)
+                        (:endgroup . nil)
+
+                        ("Git" . nil)
+
+                        (:startgroup . nil)
+                        ("Node.js" . nil)
+                        (:grouptags)
+                        ("Webpack")
+                        ("Express")
+                        (:endgroup . nil)
+
+                        (:startgroup . nil)
+                        ("Javascript" . nil)
+                        (:grouptags)
+                        ("ES5")
+                        ("ES6")
+                        (:endgroup . nil)
+
+                        (:startgroup . nil)
+                        ("CSS" . nil)
+                        (:grouptags)
+                        ("CSS3")
+                        (:endgroup . nil)
+
+                        (:startgroup . nil)
+                        ("HTML" . nil)
+                        (:grouptags)
+                        ("HTML5")
+                        (:endgroup . nil)
+
+                        ("WebApp")
+
+                        (:startgroup . nil)
+                        ("Emacs" . nil)
+                        (:grouptags)
+                        ("Spacemacs")
+                        ("Lisp")
+                        (:endgroup . nil)
+
+                        ))
 
   ;; Todo keywords
   (setq org-todo-keywords
@@ -468,7 +513,7 @@ you should place your code here."
         '(("t" "Todo" entry (file+headline "~/org/inbox.org" "Tasks")
            "* TODO %?\n%U\n" :clock-in t :clock-resume t)
           ("n" "Note" entry (file+headline "~/org/inbox.org" "Notes")
-           "* %? :NOTE:\n%U\n" :clock-in t :clock-resume t)
+           "* %? \n%U\n" :clock-in t :clock-resume t)
           ("s" "Code Snippet" entry (file+headline "~/org/inbox.org" "Notes")
            "* %?\t%^g\n#+BEGIN_SRC %^{language}\n\n#+END_SRC")
           ("l" "links" entry (file+headline "~/org/inbox.org" "Notes")
@@ -477,9 +522,9 @@ you should place your code here."
           ("j" "Journal" entry (file+datetree "~/org/journal.org")
            "* %?\n%U\n" :clock-in t :clock-resume t)
           ("m" "Meeting" entry (file+datetree "~/org/journal.org")
-           "* MEETING with %? :MEETING:\n%U" :clock-in t :clock-resume t)
+           "* MEETING with %? :MEETING:\n%U\n" :clock-in t :clock-resume t)
           ("p" "Phone call" entry (file+datetree "~/org/journal.org")
-           "* PHONE %? :PHONE:\n%U" :clock-in t :clock-resume t)
+           "* PHONE %? :PHONE:\n%U\n" :clock-in t :clock-resume t)
           ("h" "Habit" entry (file+datetree "~/org/inbox.org" "Habits")
            "* NEXT %?\n%U\n%a\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n")))
 
@@ -718,12 +763,14 @@ A prefix arg forces clock in of the default task."
 
   ;; ====== Exporting =======
 
-  ;; auto section number to 2 on org export
-  (setq-default org-export-with-section-numbers 2)
+  ;; auto section number to 4 on org export
+  (setq-default org-export-with-section-numbers 6)
+  (setq org-export-headline-levels 6)
+  (setq org-export-with-toc nil)
 
-  ;; Targets include this file and any file contributing to the agenda - up to 9 levels deep
-  (setq org-refile-targets (quote ((nil :maxlevel . 9)
-                                   (org-agenda-files :maxlevel . 9))))
+  ;; Targets include this file and any file contributing to the agenda - up to 2 levels deep
+  (setq org-refile-targets (quote ((nil :maxlevel . 2)
+                                   (org-agenda-files :maxlevel . 2))))
 
   ;; Use full outline paths for refile targets - we file directly with IDO
   (setq org-refile-use-outline-path t)
@@ -768,9 +815,75 @@ A prefix arg forces clock in of the default task."
       (delete-trailing-whitespace)
       nil))
 
+  ;;; add-node-modules-path.el --- Add node_modules to your exec-path
+
+  ;; Copyright (C) 2016 Neri Marschik
+  ;; This package uses the MIT License.
+  ;; See the LICENSE file.
+
+  ;; Author: Neri Marschik <marschik_neri@cyberagent.co.jp>
+  ;; Version: 1.0
+  ;; Package-Requires: ()
+  ;; Keywords: javascript, node, node_modules, eslint
+  ;; URL: https://github.com/codesuki/add-node-modules-path
+
+  ;;; Commentary:
+  ;;
+  ;; This file provides `add-node-modules-path', which searches
+  ;; the current files parent directories for the `node_modules/.bin/' directory
+  ;; and adds it to the buffer local `exec-path'.
+  ;; This allows Emacs to find project based installs of e.g. eslint.
+  ;;
+  ;; Usage:
+  ;;     M-x add-node-modules-path
+  ;;
+  ;;     To automatically run it when opening a new buffer:
+  ;;     (Choose depending on your favorite mode.)
+  ;;
+  ;;     (eval-after-load 'js-mode
+  ;;       '(add-hook 'js-mode-hook #'add-node-modules-path))
+  ;;
+  ;;     (eval-after-load 'js2-mode
+  ;;       '(add-hook 'js2-mode-hook #'add-node-modules-path))
+
+  ;;; Code:
+
+  ;;;###autoload
+  (defun add-node-modules-path ()
+    (interactive)
+    (let* ((root (locate-dominating-file
+                  (or (buffer-file-name) default-directory)
+                  "node_modules"))
+          (path (and root
+                      (expand-file-name "node_modules/.bin/" root))))
+      (if root
+          (progn
+            (make-local-variable 'exec-path)
+            (add-to-list 'exec-path path)
+            (message "added node_modules to exec-path"))
+        (message "node_modules not found"))))
+
+  (provide 'add-node-modules-path)
+
+  (eval-after-load 'js2-mode
+    '(add-hook 'js2-mode-hook #'add-node-modules-path))
+
+  ;;; add-node-modules-path.el ends here
+
+  ;; turn on flycheck globally
+  (global-flycheck-mode)
+
+  ;; disable jshint since we prefer eslint checking
+  (setq-default flycheck-disabled-checkers
+                (append flycheck-disabled-checkers '(javascript-jshint)))
+
+  ;; add flycheck with eslint on web-mode
+  (flycheck-add-mode 'javascript-eslint 'web-mode)
+
   ;; eslint config file
   ;;(setq-default flycheck-eslint-rules-directories '("~/.eslintrc"))
   (setq-default flycheck-checker-error-threshold 1000)
+  ;; only check on saving
   (setq flycheck-check-syntax-automatically '(mode-enabled save))
 
   ;; disable js2-mode semicolon check
@@ -787,23 +900,297 @@ A prefix arg forces clock in of the default task."
 
   (define-key evil-normal-state-map (kbd "u") 'undo-tree-undo)
 
-  ;; turn on flycheck globally
-  (global-flycheck-mode)
 
-  ;; disable jshint since we prefer eslint checking
-  (setq-default flycheck-disabled-checkers
-                (append flycheck-disabled-checkers '(javascript-jshint)))
-
-  ;; add flycheck with eslint on web-mode
-  (flycheck-add-mode 'javascript-eslint 'web-mode)
 
   ;; use projectile native ignore index
   (setq projectile-indexing-method 'native)
 
   (setq powerline-default-separator nil)
 
+  ;; evil-escape key delay
+  (setq-default evil-escape-delay 0.3)
+
   ;; yasnippet settings
   (setq yas-snippet-dirs '("~/.spacemacs.d/snippets"))
+
+  ;; org-html styles
+  (setq org-html-preamble nil)
+  (setq org-html-postamble nil)
+  (setq org-html-head-include-default-style nil)
+  (setq org-html-head "
+   <style type=\"text/css\">
+html {
+  padding: 0;
+}
+
+body {
+  font-family: \"Droid Serif\", \"Lucida Grande\", \"Lucida Sans Unicode\", \"DejaVu Sans\", Verdana, sans-serif;
+  font-size: 11pt;
+  line-height: 1.3;
+  margin: 40pt;
+  padding: 0;
+}
+ul, ol {
+  padding-left: 1em;
+}
+h1,h2,h3,h4,h5,h6,.h1,.h2,.h3,.h4,.h5,.h6 {
+  font-family: \"Helvetica Neue\", Helvetica, Arial, sans-serif;
+  font-weight: bold;
+  line-height: 1.1;
+  color: inherit
+}
+
+h1,h2,h3,h4,h5,h6 {
+  margin-bottom: 9px
+}
+
+p {
+  margin: 0 0 10px
+}
+
+.outline-2 h1 {
+  margin-top: 45px;
+  font-size: 2.5em;
+}
+
+.outline-2 h2 {
+  margin-top: 40px;
+  font-size: 2em;
+}
+
+.outline-2 h3 {
+  margin-top: 35px;
+  font-size: 1.5em;
+}
+
+.outline-2 h4 {
+  margin-top: 30px;
+  font-size: 1.2em
+}
+
+.outline-2 h5 {
+  margin-top: 30px;
+  font-size: 1.1em
+}
+
+.outline-2 h6 {
+  margin-top: 30px;
+  font-size: 1.1em
+}
+
+.outline-2 code {
+  padding: 2px 4px;
+  font-size: 90%;
+  color: #c7254e;
+  background-color: #f9f2f4;
+  white-space: nowrap;
+  border-radius: 4px;
+}
+
+.outline-2 table{
+  width: 100%;
+}
+
+table tbody tr:nth-child(odd){
+  background-color: #efefef;
+}
+
+.title {
+  position: fixed;
+  display: inline;
+  left: 0px;
+  top: 0px;
+  height: 54px;
+  width: 100%;
+  margin-top: 0px;
+  background-color: #eee;
+  padding: 0;
+  z-index: 99;
+}
+
+#orgquote {
+  position: fixed;
+  display: block;
+  top: 77px;
+  padding: 5pt;
+  text-align: center;
+  background-color: black;
+  width: 100%;
+  color: #ccc;
+  box-shadow: 0px 15px 10px #fff;
+  font-size: 90%;
+  font-family: Courier new;
+  z-index: 98;
+}
+
+h1.title {
+  text-shadow: 2px 2px 4px #999;
+  padding-top: 23px;
+  padding-left: 70pt;
+  font-size: 23pt;
+}
+
+.timestamp {
+  font-family: Courier New;
+  color: #888888;
+}
+
+pre {
+  background-color: #eee;
+  box-shadow: 5px 5px 5px #888;
+  border: none;
+  padding: 5pt;
+  margin-bottom: 14pt;
+  color: black;
+  padding: 12pt;
+  font-family: Courier New;
+  font-size: 95%;
+  overflow: auto;
+}
+
+#outline-container-1 {
+  padding-top: 3pt;
+}
+
+p {
+  margin-top: 0;
+  text-align: justify;
+}
+
+a:link {
+  font-weight: normal;
+  text-decoration: none;
+}
+
+a:visited {
+  font-weight: normal;
+  text-decoration: none;
+}
+
+a:hover, a:active {
+  text-decoration: underline;
+}
+
+dd {
+  text-align: justify;
+  margin-bottom: 14pt;
+}
+
+dt {
+  font-size: 110%;
+  font-family: Courier New;
+  color: #1c3030;
+  padding: 3px;
+  margin-bottom: 3px;
+}
+
+li {
+  margin: 10px;
+  text-align: justify;
+}
+
+#table-of-contents {
+  font-size: 9pt;
+  position: fixed;
+  right: 0em;
+  top: 0em;
+  background: white;
+  -webkit-box-shadow: 0 0 1em #777777;
+  -moz-box-shadow: 0 0 1em #777777;
+  -webkit-border-bottom-left-radius: 5px;
+  -moz-border-radius-bottomleft: 5px;
+  text-align: right;
+  max-height: 80%;
+  overflow: auto;
+  z-index: 200;
+}
+
+#table-of-contents h2 {
+  font-size: 9pt;
+  max-width: 8em;
+  font-weight: normal;
+  padding-left: 0.5em;
+  padding-top: 0.05em;
+  padding-bottom: 0.05em;
+}
+
+#table-of-contents ul {
+  margin-left: 14pt;
+  margin-bottom: 10pt;
+  padding: 0
+}
+
+#table-of-contents li {
+  padding: 0;
+  margin: 1px;
+  list-style: none;
+}
+
+#table-of-contents ul>:first-child {
+  color: blue;
+}
+
+#table-of-contents #text-table-of-contents {
+  display: none;
+  text-align: left;
+}
+
+#table-of-contents:hover #text-table-of-contents {
+  display: block;
+  padding: 0.5em;
+  margin-top: -1.5em;
+}
+
+img {
+  border: 1px solid black;
+}
+img.random {
+  max-width: 750px;
+  max-height: 380px;
+  margin-bottom: 10pt;
+}
+.underline{
+  text-decoration: underline;
+}
+del{
+  text-decoration: line-through;
+}
+i{
+  font-style: italic;
+}
+@media screen
+{
+  #table-of-contents {
+    float: right;
+    border: 1px solid #CCC;
+    max-width: 50%;
+    overflow: auto;
+  }
+} /* END OF @media screen */
+   </style>")
+
+  ;; Graph library path
+  (setq org-plantuml-jar-path
+        (expand-file-name "~/.spacemacs.d/plantuml.jar"))
+  (setq org-ditaa-jar-path "~/.spacemacs.d/ditaa.jar")
+
+  ;; Activate Org-babel languages
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((sh . t)
+     (dot . t)
+     (js . t)
+     (latex .t)
+     (python . t)
+     (emacs-lisp . t)
+     (plantuml . t)
+     (C . t)
+     (ditaa . t)))
+
+  ; Do not prompt to confirm evaluation
+  ; This may be dangerous - make sure you understand the consequences
+  ; of setting this -- see the docstring for details
+  (setq org-confirm-babel-evaluate nil)
   ;; user-config end
 )
 
