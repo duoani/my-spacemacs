@@ -1,5 +1,5 @@
 # -*- mode: snippet -*-
-# name: <s
+# name: block-src
 # key: <s
 # --
 #+BEGIN_SRC $1
