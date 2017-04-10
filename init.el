@@ -31,8 +31,6 @@ values."
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
    '(
-     php
-     themes-megapack
      markdown
      (javascript
       :variables
@@ -64,8 +62,8 @@ values."
      org
      deft
      (shell :variables
-           shell-default-height 30
-           shell-default-position 'bottom)
+            shell-default-height 30
+            shell-default-position 'bottom)
      ;; spell-checking
      syntax-checking
      ;; version-control
@@ -86,7 +84,6 @@ values."
                                     evil-unimpaired ;; melpa connect timeout
                                     tern
                                     hl-todo
-                                    eshell-v
                                     )
    ;; Defines the behaviour of Spacemacs when installing packages.
    ;; Possible values are `used-only', `used-but-keep-unused' and `all'.
@@ -162,11 +159,17 @@ values."
    dotspacemacs-colorize-cursor-according-to-state t
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
-   dotspacemacs-default-font '("Source Code Pro"
-                               :size 13
-                               :weight normal
-                               :width normal
-                               :powerline-scale 1)
+   dotspacemacs-default-font (if (eq system-type 'windows-nt)
+                                 '("Consolas"
+                                   :size 14
+                                   :weight normal
+                                   :width normal
+                                   :powerline-scale 1)
+                               '("Source Code Pro"
+                                 :size 13
+                                 :weight normal
+                                 :width normal
+                                 :powerline-scale 1))
    ;; The leader key
    dotspacemacs-leader-key "SPC"
    ;; The key used for Emacs commands (M-x) (after pressing on the leader key).
@@ -329,26 +332,49 @@ layers configuration.
 This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
+  (if (eq system-type 'windows-nt)
+      (progn
+        ;; encode settings
+        (setq coding-system-for-write 'utf-8)
+        (set-keyboard-coding-system 'utf-8)
+        ;; (set-clipboard-coding-system 'utf-8)
+        (set-terminal-coding-system 'utf-8)
+        ;; (set-buffer-file-coding-system 'utf-8)
+        (set-default-coding-systems 'utf-8)
+        ;; (unless (eq system-type 'windows-nt) (set-selection-coding-system 'utf-8))
+        ;;(set-selection-coding-system 'utf-8)
+        (modify-coding-system-alist 'process "*" 'utf-8)
+        (setq default-process-coding-system '(utf-8 . utf-8))
+        (setq default-buffer-file-coding-system 'utf-8)
+        (setq-default pathname-coding-system 'utf-8)
+        (set-file-name-coding-system 'utf-8)
+        ;; (prefer-coding-system 'utf-8-dos)
+        (prefer-coding-system 'utf-8-unix)
 
-  ;; encode settings
-  (set-keyboard-coding-system 'utf-8)
-  (set-clipboard-coding-system 'utf-8)
-  (set-terminal-coding-system 'utf-8)
-  (set-buffer-file-coding-system 'utf-8)
-  (set-default-coding-systems 'utf-8)
-  (set-selection-coding-system 'utf-8)
-  (modify-coding-system-alist 'process "*" 'utf-8)
-  (setq default-process-coding-system '(utf-8 . utf-8))
-  (setq default-buffer-file-coding-system 'utf-8)
-  (setq-default pathname-coding-system 'utf-8)
-  (set-file-name-coding-system 'utf-8)
-  (prefer-coding-system 'utf-8)
+        ;; Chinese mono font
+        (spacemacs//set-monospaced-font "Consolas" "Yahei Mono" 14 14)
+        (setq tramp-ssh-controlmaster-options
+              "-o ControlMaster=auto -o ControlPath='tramp.%%C' -o ControlPersist=no"))
+    (progn
+      ;; encode settings
+      (set-keyboard-coding-system 'utf-8)
+      (set-clipboard-coding-system 'utf-8)
+      (set-terminal-coding-system 'utf-8)
+      (set-buffer-file-coding-system 'utf-8)
+      (set-default-coding-systems 'utf-8)
+      (set-selection-coding-system 'utf-8)
+      (modify-coding-system-alist 'process "*" 'utf-8)
+      (setq default-process-coding-system '(utf-8 . utf-8))
+      (setq default-buffer-file-coding-system 'utf-8)
+      (setq-default pathname-coding-system 'utf-8)
+      (set-file-name-coding-system 'utf-8)
+      (prefer-coding-system 'utf-8)
+      ;; Chinese mono font (Just in Emacs with Graphic)
+      (if (display-graphic-p)
+          (spacemacs//set-monospaced-font "Source Code Pro" "Yahei Mono" 13 13))))
 
-  (define-key evil-normal-state-map (kbd "u") 'undo-tree-undo)
-
-  ;; Chinese mono font (Just in Emacs with Graphic)
-  (if (display-graphic-p)
-      (spacemacs//set-monospaced-font "Source Code Pro" "Yahei Mono" 13 13))
+  ;; Never "Keep current list of tags tables also"
+  (setq tags-add-tables nil)
 
   ;;解决org表格里面中英文对齐的问题
   ;; (when (configuration-layer/layer-usedp 'chinese)
@@ -402,18 +428,6 @@ you should place your code here."
 
   ;; emmet-mode
   (add-hook 'emmet-mode-hook (lambda () (setq emmet-indentation 2)))
-
-  ;; org babel
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((emacs-lisp . t)
-     (ruby . t)
-     (sh . t)
-     (latex . t)
-     (plantuml . t)
-     (ditaa . t)
-     (python . t)
-     (R . t)))
 
   ;; org startup indented on org file by default
   (setq org-startup-indented t)
@@ -543,7 +557,7 @@ you should place your code here."
 
 
   ;; org-agenda-files
-  (setq org-agenda-files '("~/org/" "~/org/project/"))
+  (setq org-agenda-files '("~/org/" "~/org/oneway/"))
 
 
   ;; ====== Custom Agenda Views ======
@@ -786,7 +800,7 @@ A prefix arg forces clock in of the default task."
                                    (org-agenda-files :maxlevel . 2))))
 
   ;; Use full outline paths for refile targets - we file directly with IDO
-  (setq org-refile-use-outline-path t)
+  (setq org-refile-use-outline-path 'file)
 
   ;; Targets complete directly with IDO
   (setq org-outline-path-complete-in-steps nil)
@@ -912,8 +926,6 @@ A prefix arg forces clock in of the default task."
   (global-company-mode)
 
   (define-key evil-normal-state-map (kbd "u") 'undo-tree-undo)
-
-
 
   ;; use projectile native ignore index
   (setq projectile-indexing-method 'native)
@@ -1186,6 +1198,9 @@ i{
   (setq org-plantuml-jar-path
         (expand-file-name "~/.spacemacs.d/plantuml.jar"))
   (setq org-ditaa-jar-path "~/.spacemacs.d/ditaa.jar")
+
+  (eval-after-load "org"
+    '(require 'ox-md nil t))
 
   ;; Activate Org-babel languages
   (org-babel-do-load-languages
