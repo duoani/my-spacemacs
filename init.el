@@ -373,6 +373,11 @@ you should place your code here."
       (if (display-graphic-p)
           (spacemacs//set-monospaced-font "Source Code Pro" "Yahei Mono" 13 13))))
 
+  ;; Smooth Scrolling
+  (setq scroll-margin 5
+        scroll-conservatively 9999
+        scroll-step 1)
+
   ;; Never "Keep current list of tags tables also"
   (setq tags-add-tables nil)
 
@@ -926,6 +931,8 @@ A prefix arg forces clock in of the default task."
   (global-company-mode)
 
   (define-key evil-normal-state-map (kbd "u") 'undo-tree-undo)
+  ;; Youdao Dictionary
+  (spacemacs/set-leader-keys "oy" 'youdao-dictionary-search-at-point-tooltip)
 
   ;; use projectile native ignore index
   (setq projectile-indexing-method 'native)
