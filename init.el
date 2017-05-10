@@ -73,7 +73,8 @@ values."
    ;; wrapped in a layer. If you need some configuration for these
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
-   dotspacemacs-additional-packages '()
+   dotspacemacs-additional-packages '(vue-mode
+                                      lispy)
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
    ;; A list of packages that will not be installed and loaded.
@@ -392,10 +393,12 @@ you should place your code here."
   (setq tramp-ssh-controlmaster-options
         "-o ControlMaster=auto -o ControlPath='tramp.%%C' -o ControlPersist=no")
 
+  (add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode 1)))
+
   ;; indent to 2 spaces
   (setq-default js2-basic-offset 2) ;; js indent
-  (setq-default js-indent-level 2) ;; json indent
-  (setq css-indent-offset 2) ;; css-mode
+  (setq-default js-indent-level 2)  ;; json indent
+  (setq css-indent-offset 2)        ;; css-mode
 
   (defun my-web-mode-hook ()
     "Hooks for web-mode."
@@ -413,25 +416,25 @@ you should place your code here."
 
     ;; web-mode auto-complete
     (setq web-mode-ac-sources-alist
-      '(("css" . (ac-source-css-property))
-        ("html" . (ac-source-words-in-buffer ac-source-abbrev)))))
-    (add-hook 'web-mode-hook 'my-web-mode-hook)
+          '(("css" . (ac-source-css-property))
+            ("html" . (ac-source-words-in-buffer ac-source-abbrev)))))
+  (add-hook 'web-mode-hook 'my-web-mode-hook)
 
-    (add-to-list 'auto-mode-alist '("/.*\\.vue\\'" . web-mode))
-    (add-to-list 'auto-mode-alist '("/.*\\.styl\\'" . css-mode))
+  (add-to-list 'auto-mode-alist '("/.*\\.vue\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("/.*\\.styl\\'" . css-mode))
 
-    (defun my-js2-mode-hook ()
-      "Hooks for js2-mode."
-      (setq js2-mode-show-parse-errors nil)
-      (setq js2-mode-show-strict-warnings nil)
-      (setq js2-strict-missing-semi-warning nil)
-      (setq js2-missing-semi-one-line-override t)
-      (setq js2-strict-inconsistent-return-warning nil)
-      (setq js2-strict-cond-assign-warning nil)
-      (setq js2-strict-var-redeclaration-warning nil)
-      (setq js2-strict-var-hides-function-arg-warning nil))
+  (defun my-js2-mode-hook ()
+    "Hooks for js2-mode."
+    (setq js2-mode-show-parse-errors nil)
+    (setq js2-mode-show-strict-warnings nil)
+    (setq js2-strict-missing-semi-warning nil)
+    (setq js2-missing-semi-one-line-override t)
+    (setq js2-strict-inconsistent-return-warning nil)
+    (setq js2-strict-cond-assign-warning nil)
+    (setq js2-strict-var-redeclaration-warning nil)
+    (setq js2-strict-var-hides-function-arg-warning nil))
 
-    (add-hook 'js2-mode-hook 'my-js2-mode-hook)
+  (add-hook 'js2-mode-hook 'my-js2-mode-hook)
 
   ;; emmet-mode
   (add-hook 'emmet-mode-hook (lambda () (setq emmet-indentation 2)))
@@ -442,6 +445,12 @@ you should place your code here."
   (setq org-log-into-drawer t)
   ;; allows changing todo states with S-left and S-right skipping all of the normal processing when entering or leaving a todo state. This cycles through the todo states but skips setting timestamps and entering notes which is very convenient when all you want to do is fix up the status of an entry.
   (setq org-treat-S-cursor-todo-selection-as-state-change nil)
+
+  ;; Hiding markup elements in org-mode
+  ;; (setq org-hide-emphasis-markers nil)
+  (setq org-emphasis-alist
+        (cons '("=" '(:foreground "gray"))
+              (delete* "=" org-emphasis-alist :key 'car :test 'equal)))
 
   ;; org-mode keybindings
   (global-set-key (kbd "C-c l") 'org-store-link)
@@ -532,7 +541,7 @@ you should place your code here."
 
   (defun org-summary-todo (n-done n-not-done)
     "Switch entry to DONE when all subentries are done, to TODO otherwise. Parent entry must be added a [%] or [/] tag to enable statistics."
-    (let (org-log-done org-log-states)   ; turn off logging
+    (let (org-log-done org-log-states)  ; turn off logging
       (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
 
   (add-hook 'org-after-todo-statistics-hook 'org-summary-todo)
@@ -629,20 +638,20 @@ Switch projects and subprojects from NEXT back to TODO"
         "TODO"))))
 
   (defun duo/is-project-p ()
-  "Any task with a todo keyword subtask"
-  (save-restriction
-    (widen)
-    (let ((has-subtask)
-          (subtree-end (save-excursion (org-end-of-subtree t)))
-          (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
-      (save-excursion
-        (forward-line 1)
-        (while (and (not has-subtask)
-                    (< (point) subtree-end)
-                    (re-search-forward "^\*+ " subtree-end t))
-          (when (member (org-get-todo-state) org-todo-keywords-1)
-            (setq has-subtask t))))
-      (and is-a-task has-subtask))))
+    "Any task with a todo keyword subtask"
+    (save-restriction
+      (widen)
+      (let ((has-subtask)
+            (subtree-end (save-excursion (org-end-of-subtree t)))
+            (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
+        (save-excursion
+          (forward-line 1)
+          (while (and (not has-subtask)
+                      (< (point) subtree-end)
+                      (re-search-forward "^\*+ " subtree-end t))
+            (when (member (org-get-todo-state) org-todo-keywords-1)
+              (setq has-subtask t))))
+        (and is-a-task has-subtask))))
 
   (defun duo/is-project-subtree-p ()
     "Any task with a todo keyword that is in a project subtree.
@@ -712,7 +721,7 @@ as the default task."
       ;;
       (save-restriction
         (widen)
-        ; Find the tags on the current task
+                                        ; Find the tags on the current task
         (if (and (equal major-mode 'org-mode) (not (org-before-first-heading-p)) (eq arg 4))
             (org-clock-in '(16))
           (duo/clock-in-organization-task-as-default)))))
@@ -785,10 +794,10 @@ A prefix arg forces clock in of the default task."
 
   ;; ====== Task Estimate ======
   ;; task estimate with column view
-  ; Set default column view headings: Task Effort Clock_Summary
+                                        ; Set default column view headings: Task Effort Clock_Summary
   (setq org-columns-default-format "%80ITEM(Task) %10Effort(Effort){:} %10CLOCKSUM")
-  ; global Effort estimate values
-  ; global STYLE property values for completion
+                                        ; global Effort estimate values
+                                        ; global STYLE property values for completion
   (setq org-global-properties (quote (("Effort_ALL" . "0:15 0:30 0:45 1:00 2:00 3:00 4:00 5:00 6:00 0:00")
                                       ("STYLE_ALL" . "habit"))))
   ;; Agenda log mode items to display (closed and state changes by default)
@@ -827,7 +836,7 @@ A prefix arg forces clock in of the default task."
   (setq org-indirect-buffer-display 'current-window)
 
   ;; Refile settings
-  ; Exclude DONE state tasks from refile targets
+                                        ; Exclude DONE state tasks from refile targets
   (defun duo/verify-refile-target ()
     "Exclude todo keywords with a done state from refile targets"
     (not (member (nth 2 (org-heading-components)) org-done-keywords)))
@@ -845,11 +854,11 @@ A prefix arg forces clock in of the default task."
 
   ;; auto delete trailing whitespace
   (add-hook 'local-write-file-hooks
-    (lambda ()
-      (delete-trailing-whitespace)
-      nil))
+            (lambda ()
+              (delete-trailing-whitespace)
+              nil))
 
-  ;;; add-node-modules-path.el --- Add node_modules to your exec-path
+;;; add-node-modules-path.el --- Add node_modules to your exec-path
 
   ;; Copyright (C) 2016 Neri Marschik
   ;; This package uses the MIT License.
@@ -861,7 +870,7 @@ A prefix arg forces clock in of the default task."
   ;; Keywords: javascript, node, node_modules, eslint
   ;; URL: https://github.com/codesuki/add-node-modules-path
 
-  ;;; Commentary:
+;;; Commentary:
   ;;
   ;; This file provides `add-node-modules-path', which searches
   ;; the current files parent directories for the `node_modules/.bin/' directory
@@ -880,15 +889,15 @@ A prefix arg forces clock in of the default task."
   ;;     (eval-after-load 'js2-mode
   ;;       '(add-hook 'js2-mode-hook #'add-node-modules-path))
 
-  ;;; Code:
+;;; Code:
 
-  ;;;###autoload
+;;;###autoload
   (defun add-node-modules-path ()
     (interactive)
     (let* ((root (locate-dominating-file
                   (or (buffer-file-name) default-directory)
                   "node_modules"))
-          (path (and root
+           (path (and root
                       (expand-file-name "node_modules/.bin/" root))))
       (if root
           (progn
@@ -902,7 +911,10 @@ A prefix arg forces clock in of the default task."
   (eval-after-load 'js2-mode
     '(add-hook 'js2-mode-hook #'add-node-modules-path))
 
-  ;;; add-node-modules-path.el ends here
+  (eval-after-load 'web-mode
+    '(add-hook 'web-mode-hook #'add-node-modules-path))
+
+;;; add-node-modules-path.el ends here
 
   ;; turn on flycheck globally
   (global-flycheck-mode)
@@ -929,7 +941,7 @@ A prefix arg forces clock in of the default task."
     (setq buffer-display-table (make-display-table))
     (aset buffer-display-table ?\^M []))
 
-    ;; global company mode
+  ;; global company mode
   (global-company-mode)
 
   (define-key evil-normal-state-map (kbd "u") 'undo-tree-undo)
@@ -1224,12 +1236,12 @@ i{
      (C . t)
      (ditaa . t)))
 
-  ; Do not prompt to confirm evaluation
-  ; This may be dangerous - make sure you understand the consequences
-  ; of setting this -- see the docstring for details
+                                        ; Do not prompt to confirm evaluation
+                                        ; This may be dangerous - make sure you understand the consequences
+                                        ; of setting this -- see the docstring for details
   (setq org-confirm-babel-evaluate nil)
   ;; user-config end
-)
+  )
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
@@ -1243,7 +1255,7 @@ i{
     ("~/org/project/sdk.org" "/Users/duoani/org/emacs.org" "/Users/duoani/org/eslint.org" "/Users/duoani/org/git.org" "/Users/duoani/org/inbox.org" "/Users/duoani/org/journal.org" "/Users/duoani/org/links.org" "/Users/duoani/org/meeting.org" "/Users/duoani/org/project/ad-admin.org" "/Users/duoani/org/project/ad.org" "/Users/duoani/org/project/site.org")))
  '(package-selected-packages
    (quote
-    (yaml-mode xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help open-junk-file neotree move-text link-hint info+ indent-guide hide-comnt help-fns+ helm-make helm helm-core google-translate eyebrowse expand-region exec-path-from-shell evil-surround evil-nerd-commenter evil-mc evil-matchit evil-escape evil-ediff evil-anzu dumb-jump autothemer column-enforce-mode bind-key auto-compile packed aggressive-indent ace-window ace-link avy iedit smartparens bind-map highlight evil projectile async hydra orgit magit-gitflow evil-magit magit magit-popup git-commit dash helm-themes helm-swoop helm-projectile helm-mode-manager helm-gitignore helm-flx helm-descbinds helm-ag ace-jump-helm-line smeargle gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link with-editor org-projectile org-present org org-pomodoro alert log4e gntp org-download htmlize gnuplot deft company-quickhelp zonokai-theme zenburn-theme zen-and-art-theme underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme tronesque-theme toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme sunny-day-theme sublime-themes subatomic256-theme subatomic-theme spacegray-theme soothe-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme seti-theme reverse-theme railscasts-theme purple-haze-theme professional-theme planet-theme phoenix-dark-pink-theme phoenix-dark-mono-theme pastels-on-dark-theme organic-green-theme omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme niflheim-theme naquadah-theme mustang-theme monokai-theme monochrome-theme molokai-theme moe-theme minimal-theme material-theme majapahit-theme lush-theme light-soap-theme jbeans-theme jazz-theme ir-black-theme inkpot-theme heroku-theme hemisu-theme hc-zenburn-theme gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme gandalf-theme flatui-theme flatland-theme firebelly-theme farmhouse-theme espresso-theme dracula-theme django-theme darktooth-theme darkokai-theme darkmine-theme darkburn-theme dakrone-theme cyberpunk-theme color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized clues-theme cherry-blossom-theme busybee-theme bubbleberry-theme birds-of-paradise-plus-theme badwolf-theme apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes afternoon-theme wgrep smex ivy-hydra counsel-projectile counsel swiper ivy js2-refactor helm-c-yasnippet auto-yasnippet youdao-dictionary names chinese-word-at-point web-mode web-beautify tagedit slim-mode scss-mode sass-mode pug-mode mmm-mode markdown-toc markdown-mode livid-mode skewer-mode simple-httpd less-css-mode json-mode json-snatcher json-reformat multiple-cursors js2-mode js-doc helm-css-scss helm-company haml-mode gh-md flycheck-pos-tip flycheck emmet-mode company-web web-completion-data company-tern dash-functional tern company-statistics company coffee-mode yasnippet ac-ispell auto-complete pangu-spacing mwim find-by-pinyin-dired chinese-pyim chinese-pyim-basedict pos-tip ace-pinyin pinyinlib ace-jump-mode ws-butler window-numbering which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib package-build spacemacs-theme))))
+    (lispy zoutline vue-mode ssass-mode vue-html-mode yaml-mode xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help open-junk-file neotree move-text link-hint info+ indent-guide hide-comnt help-fns+ helm-make helm helm-core google-translate eyebrowse expand-region exec-path-from-shell evil-surround evil-nerd-commenter evil-mc evil-matchit evil-escape evil-ediff evil-anzu dumb-jump autothemer column-enforce-mode bind-key auto-compile packed aggressive-indent ace-window ace-link avy iedit smartparens bind-map highlight evil projectile async hydra orgit magit-gitflow evil-magit magit magit-popup git-commit dash helm-themes helm-swoop helm-projectile helm-mode-manager helm-gitignore helm-flx helm-descbinds helm-ag ace-jump-helm-line smeargle gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link with-editor org-projectile org-present org org-pomodoro alert log4e gntp org-download htmlize gnuplot deft company-quickhelp zonokai-theme zenburn-theme zen-and-art-theme underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme tronesque-theme toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme sunny-day-theme sublime-themes subatomic256-theme subatomic-theme spacegray-theme soothe-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme seti-theme reverse-theme railscasts-theme purple-haze-theme professional-theme planet-theme phoenix-dark-pink-theme phoenix-dark-mono-theme pastels-on-dark-theme organic-green-theme omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme niflheim-theme naquadah-theme mustang-theme monokai-theme monochrome-theme molokai-theme moe-theme minimal-theme material-theme majapahit-theme lush-theme light-soap-theme jbeans-theme jazz-theme ir-black-theme inkpot-theme heroku-theme hemisu-theme hc-zenburn-theme gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme gandalf-theme flatui-theme flatland-theme firebelly-theme farmhouse-theme espresso-theme dracula-theme django-theme darktooth-theme darkokai-theme darkmine-theme darkburn-theme dakrone-theme cyberpunk-theme color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized clues-theme cherry-blossom-theme busybee-theme bubbleberry-theme birds-of-paradise-plus-theme badwolf-theme apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes afternoon-theme wgrep smex ivy-hydra counsel-projectile counsel swiper ivy js2-refactor helm-c-yasnippet auto-yasnippet youdao-dictionary names chinese-word-at-point web-mode web-beautify tagedit slim-mode scss-mode sass-mode pug-mode mmm-mode markdown-toc markdown-mode livid-mode skewer-mode simple-httpd less-css-mode json-mode json-snatcher json-reformat multiple-cursors js2-mode js-doc helm-css-scss helm-company haml-mode gh-md flycheck-pos-tip flycheck emmet-mode company-web web-completion-data company-tern dash-functional tern company-statistics company coffee-mode yasnippet ac-ispell auto-complete pangu-spacing mwim find-by-pinyin-dired chinese-pyim chinese-pyim-basedict pos-tip ace-pinyin pinyinlib ace-jump-mode ws-butler window-numbering which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib package-build spacemacs-theme))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
