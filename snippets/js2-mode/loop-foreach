@@ -1,4 +1,4 @@
-# name: arr.forEach()
+# name: arr.foreach()
 # key: forEach
 # --
 ${1:myArray}.forEach(function(${2:elem}) {
