@@ -437,7 +437,8 @@ you should place your code here."
     (setq js2-strict-inconsistent-return-warning nil)
     (setq js2-strict-cond-assign-warning nil)
     (setq js2-strict-var-redeclaration-warning nil)
-    (setq js2-strict-var-hides-function-arg-warning nil))
+    (setq js2-strict-var-hides-function-arg-warning nil)
+    (setq js-switch-indent-offset 2))
 
   (add-hook 'js2-mode-hook 'my-js2-mode-hook)
 
