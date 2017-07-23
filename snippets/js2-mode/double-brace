@@ -1,0 +1,4 @@
+# key: db
+# name: double-brace
+# --
+{{ $0 }}
