@@ -1,5 +1,5 @@
 # name: arr.foreach()
-# key: forEach
+# key: fe
 # --
 ${1:myArray}.forEach(function(${2:elem}) {
 	$0
