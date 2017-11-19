@@ -49,8 +49,11 @@ values."
      ;; helm
      ivy
      (auto-completion :variables
+                      auto-completion-complete-with-key-sequence "kj"
                       auto-completion-enable-sort-by-usage t
-                      auto-completion-enable-help-tooltip t)
+                      auto-completion-enable-help-tooltip nil
+                      auto-completion-enable-snippets-in-popup t
+                      auto-completion-private-snippets-directory "~/.spacemacs.d/snippets")
      better-defaults
      emacs-lisp
      (chinese
@@ -336,6 +339,11 @@ layers configuration.
 This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
+
+  ;; debug when error occur
+  (setq debug-on-error t)
+
+  ;; encode
   (if (eq system-type 'windows-nt)
       (progn
         ;; encode settings
@@ -446,14 +454,23 @@ you should place your code here."
   ;; emmet-mode
   (add-hook 'emmet-mode-hook (lambda () (setq emmet-indentation 2)))
 
-  (defun my-org-mode-hook ()
-    "Hooks for org-mode."
-    ;; This one is for the beginning char
-    (setcar org-emphasis-regexp-components " \t('\" {（")
-    ;; This one is for the ending char.
-    (setcar (nthcdr 1 org-emphasis-regexp-components) "- \t.,: !?;，。）'\")}\\"))
+  ;; (defun my-org-mode-hook ()
+  ;;   "Hooks for org-mode."
+  ;;   ;; This one is for the beginning char
+  ;;   (setcar org-emphasis-regexp-components " \t('\" {（")
+  ;;   ;; This one is for the ending char.
+  ;;   (setcar (nthcdr 1 org-emphasis-regexp-components) "- \t.,: !?;，。）'\")}\\"))
+  ;; (add-hook 'org-mode-hook 'my-org-mode-hook)
 
-  (add-hook 'org-mode-hook 'my-org-mode-hook)
+  ;; Make org-mode friendly for Chinese chars.
+  (setq org-emphasis-regexp-components
+        '(
+          "- “：，。、  \t('\"{"        ;pre
+          "- ”：，。、 \t.,:!?;'\")}\\" ;post
+          " \t\r\n,\"'"                 ;border *forbidden*
+          "."                           ;body-regexp
+          1                             ; newline
+          ))
 
   ;; Register
   (global-set-key (kbd "<f2> m") 'point-to-register)
@@ -479,18 +496,46 @@ you should place your code here."
   (global-set-key (kbd "C-c c") 'org-capture)
   (global-set-key (kbd "C-c b") 'org-iswitchb)
 
+  (global-set-key (kbd "C-c L") 'org-insert-link-global)
+  (global-set-key (kbd "C-c O") 'org-open-at-point-global)
+
   ;; Goto currently clockly items
   (global-set-key (kbd "<f11>") 'org-clock-goto)
 
-  (setq org-tag-alist '((:startgroup .nil)
+  ;; (setq org-tag-alist '((:startgrouptag)
+  ;;                       (:grouptags)
+  ;;                       ("@home" . ?h)
+  ;;                       ("@work" . ?w)
+  ;;                       (:endgrouptag)
+  ;;                       (:startgrouptag)
+  ;;                       ("@home" . ?h)
+  ;;                       (:grouptags)
+  ;;                       ("Reading")
+  ;;                       (:endgrouptag)
+  ;;                       (:startgrouptag)
+  ;;                       ("@work" . ?w)
+  ;;                       (:grouptags)
+  ;;                       ("SysVideo")
+  ;;                       ("SysVideoAdmin")
+  ;;                       (:endgrouptag)
+  ;;                       ))
+  (setq org-tag-alist '((:startgroup . nil)
+                        ("@office" . ?w)
                         ("@home" . ?h)
-                        ("@work" . ?w)
                         (:endgroup . nil)
+
+                        ("Video" . nil)
+                        ("VideoAdmin" . nil)
+                        ("Developer" . nil)
+                        ("DeveloperAdmin" . nil)
+                        ("WebSite" . nil)
+                        ("WorkOrder" . nil)
+                        ("Analysis" . nil)
 
                         ("Git" . nil)
 
                         (:startgroup . nil)
-                        ("Node.js" . nil)
+                        ("NodeJS" . nil)
                         (:grouptags)
                         ("Webpack")
                         ("Express")
@@ -529,7 +574,7 @@ you should place your code here."
   ;; Todo keywords
   (setq org-todo-keywords
         (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
-                (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELED(c@/!)" "PHONE(p)" "MEETING(m)"))))
+                (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELED(c@/!)" "PHONE(p)" "MEETING(m)" "FIXED(f)"))))
 
   ;; Todo keywords colors
   (setq org-todo-keyword-faces
@@ -573,24 +618,28 @@ you should place your code here."
   ;; Capture templates for: TODO tasks, Notes, appointments, phone calls, meetings, and org-protocol
   ;; the %i would copy the selected text into the template
   (setq org-capture-templates
-        '(("t" "Todo" entry (file+headline "~/org/inbox.org" "Tasks")
-           "* TODO %?\n%U\n" :clock-in t :clock-resume t)
+        '(("t" "Task" entry (file+headline "~/org/inbox.org" "Tasks")
+           "* TODO %?\n%U\n" :clock-in t :clock-resume t :empty-lines 1)
           ("n" "Note" entry (file+headline "~/org/inbox.org" "Notes")
-           "* %? \n%U\n" :clock-in t :clock-resume t)
+           "* %? \n%U\n" :clock-in t :clock-resume t :empty-lines 1)
           ("s" "Code Snippet" entry (file+headline "~/org/inbox.org" "Notes")
-           "* %?\t%^g\n#+BEGIN_SRC %^{language}\n\n#+END_SRC")
+           "* %?\t%^g\n#+BEGIN_SRC %^{language}\n\n#+END_SRC" :empty-lines 1)
           ("l" "links" entry (file+headline "~/org/inbox.org" "Notes")
-           "* TODO [#C] %?\n  %i\n %a \n %U"
+           "* TODO [#C] %?\n  %i\n %a \n %U\n"
            :empty-lines 1)
           ("j" "Journal" entry (file+datetree "~/org/journal.org")
-           "* %?\n%U\n" :clock-in t :clock-resume t)
+           "* %?\n%U\n\n" :clock-in t :clock-resume t :empty-lines 1)
+          ("o" "Oneway Task" entry (file+headline "~/org/oneway/oneway.org" "Tasks")
+           "* TODO %?\n%U\n" :clock-in t :clock-resume t :empty-lines 1)
           ("m" "Meeting" entry (file+datetree "~/org/journal.org")
-           "* MEETING with %? :MEETING:\n%U\n" :clock-in t :clock-resume t)
+           "* MEETING with %? :MEETING:\n%U\n" :clock-in t :clock-resume t :empty-lines 1)
           ("p" "Phone call" entry (file+datetree "~/org/journal.org")
-           "* PHONE %? :PHONE:\n%U\n" :clock-in t :clock-resume t)
+           "* PHONE %? :PHONE:\n%U\n" :clock-in t :clock-resume t :empty-lines 1)
           ("h" "Habit" entry (file+datetree "~/org/inbox.org" "Habits")
-           "* NEXT %?\n%U\n%a\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n")))
+           "* NEXT %?\n%U\n%a\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n")))
 
+  ;; hide weeky
+  ;; (setq org-time-stamp-custom-formats '("<%Y-%m-%d>" . "<%Y-%m-%d %H:%M>"))
 
   ;; org-agenda-files
   (setq org-agenda-files '("~/org/" "~/org/oneway/"))
@@ -962,7 +1011,10 @@ A prefix arg forces clock in of the default task."
     (aset buffer-display-table ?\^M []))
 
   ;; global company mode
-  (global-company-mode)
+  (global-company-mode t)
+  ;; disable auto company popup
+  (setq company-idle-delay nil)
+  (global-set-key (kbd "C-'") 'company-complete-common)
 
   (define-key evil-normal-state-map (kbd "u") 'undo-tree-undo)
   ;; Youdao Dictionary
@@ -1240,6 +1292,7 @@ i{
         (expand-file-name "~/.spacemacs.d/plantuml.jar"))
   (setq org-ditaa-jar-path "~/.spacemacs.d/ditaa.jar")
 
+  ;; Make markdown exportable
   (eval-after-load "org"
     '(require 'ox-md nil t))
 
@@ -1259,7 +1312,7 @@ i{
                                         ; Do not prompt to confirm evaluation
                                         ; This may be dangerous - make sure you understand the consequences
                                         ; of setting this -- see the docstring for details
-  (setq org-confirm-babel-evaluate nil)
+  ;; (setq org-confirm-babel-evaluate nil)
   ;; user-config end
   )
 
