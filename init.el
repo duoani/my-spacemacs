@@ -31,6 +31,7 @@ values."
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
    '(
+     python
      yaml
      markdown
      (javascript
@@ -74,7 +75,8 @@ values."
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
    dotspacemacs-additional-packages '(vue-mode
-                                      lispy)
+                                      lispy
+                                      xref-js2)
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
    ;; A list of packages that will not be installed and loaded.
@@ -400,6 +402,10 @@ you should place your code here."
   (setq-default js-indent-level 2)  ;; json indent
   (setq css-indent-offset 2)        ;; css-mode
 
+  ;; (define-key js2-mode-map (kbd "M-.") nil)
+  ;; (add-hook 'js2-mode-hook (lambda ()
+  ;; (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t)))
+
   (defun my-web-mode-hook ()
     "Hooks for web-mode."
     ;; web-mode indent
@@ -432,12 +438,22 @@ you should place your code here."
     (setq js2-strict-inconsistent-return-warning nil)
     (setq js2-strict-cond-assign-warning nil)
     (setq js2-strict-var-redeclaration-warning nil)
-    (setq js2-strict-var-hides-function-arg-warning nil))
+    (setq js2-strict-var-hides-function-arg-warning nil)
+    (setq js-switch-indent-offset 2))
 
   (add-hook 'js2-mode-hook 'my-js2-mode-hook)
 
   ;; emmet-mode
   (add-hook 'emmet-mode-hook (lambda () (setq emmet-indentation 2)))
+
+  (defun my-org-mode-hook ()
+    "Hooks for org-mode."
+    ;; This one is for the beginning char
+    (setcar org-emphasis-regexp-components " \t('\" {（")
+    ;; This one is for the ending char.
+    (setcar (nthcdr 1 org-emphasis-regexp-components) "- \t.,: !?;，。）'\")}\\"))
+
+  (add-hook 'org-mode-hook 'my-org-mode-hook)
 
   ;; Register
   (global-set-key (kbd "<f2> m") 'point-to-register)
@@ -1259,7 +1275,7 @@ i{
     ("~/org/project/sdk.org" "/Users/duoani/org/emacs.org" "/Users/duoani/org/eslint.org" "/Users/duoani/org/git.org" "/Users/duoani/org/inbox.org" "/Users/duoani/org/journal.org" "/Users/duoani/org/links.org" "/Users/duoani/org/meeting.org" "/Users/duoani/org/project/ad-admin.org" "/Users/duoani/org/project/ad.org" "/Users/duoani/org/project/site.org")))
  '(package-selected-packages
    (quote
-    (yaml-mode vue-mode ssass-mode vue-html-mode lispy zoutline phpunit phpcbf php-extras php-auto-yasnippets graphviz-dot-mode drupal-mode php-mode xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help open-junk-file neotree move-text link-hint info+ indent-guide hide-comnt help-fns+ helm-make helm helm-core google-translate eyebrowse expand-region exec-path-from-shell evil-surround evil-nerd-commenter evil-mc evil-matchit evil-escape evil-ediff evil-anzu dumb-jump autothemer column-enforce-mode bind-key auto-compile packed aggressive-indent ace-window ace-link avy iedit smartparens bind-map highlight evil projectile async hydra orgit magit-gitflow evil-magit magit magit-popup git-commit dash helm-themes helm-swoop helm-projectile helm-mode-manager helm-gitignore helm-flx helm-descbinds helm-ag ace-jump-helm-line smeargle gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link with-editor org-projectile org-present org org-pomodoro alert log4e gntp org-download htmlize gnuplot deft company-quickhelp zonokai-theme zenburn-theme zen-and-art-theme underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme tronesque-theme toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme sunny-day-theme sublime-themes subatomic256-theme subatomic-theme spacegray-theme soothe-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme seti-theme reverse-theme railscasts-theme purple-haze-theme professional-theme planet-theme phoenix-dark-pink-theme phoenix-dark-mono-theme pastels-on-dark-theme organic-green-theme omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme niflheim-theme naquadah-theme mustang-theme monokai-theme monochrome-theme molokai-theme moe-theme minimal-theme material-theme majapahit-theme lush-theme light-soap-theme jbeans-theme jazz-theme ir-black-theme inkpot-theme heroku-theme hemisu-theme hc-zenburn-theme gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme gandalf-theme flatui-theme flatland-theme firebelly-theme farmhouse-theme espresso-theme dracula-theme django-theme darktooth-theme darkokai-theme darkmine-theme darkburn-theme dakrone-theme cyberpunk-theme color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized clues-theme cherry-blossom-theme busybee-theme bubbleberry-theme birds-of-paradise-plus-theme badwolf-theme apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes afternoon-theme wgrep smex ivy-hydra counsel-projectile counsel swiper ivy js2-refactor helm-c-yasnippet auto-yasnippet youdao-dictionary names chinese-word-at-point web-mode web-beautify tagedit slim-mode scss-mode sass-mode pug-mode mmm-mode markdown-toc markdown-mode livid-mode skewer-mode simple-httpd less-css-mode json-mode json-snatcher json-reformat multiple-cursors js2-mode js-doc helm-css-scss helm-company haml-mode gh-md flycheck-pos-tip flycheck emmet-mode company-web web-completion-data company-tern dash-functional tern company-statistics company coffee-mode yasnippet ac-ispell auto-complete pangu-spacing mwim find-by-pinyin-dired chinese-pyim chinese-pyim-basedict pos-tip ace-pinyin pinyinlib ace-jump-mode ws-butler window-numbering which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib package-build spacemacs-theme))))
+    (pyenv-mode company-anaconda anaconda-mode yapfify pyvenv pytest py-isort pip-requirements live-py-mode hy-mode cython-mode pythonic xref-js2 yaml-mode vue-mode ssass-mode vue-html-mode lispy zoutline phpunit phpcbf php-extras php-auto-yasnippets graphviz-dot-mode drupal-mode php-mode xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help open-junk-file neotree move-text link-hint info+ indent-guide hide-comnt help-fns+ helm-make helm helm-core google-translate eyebrowse expand-region exec-path-from-shell evil-surround evil-nerd-commenter evil-mc evil-matchit evil-escape evil-ediff evil-anzu dumb-jump autothemer column-enforce-mode bind-key auto-compile packed aggressive-indent ace-window ace-link avy iedit smartparens bind-map highlight evil projectile async hydra orgit magit-gitflow evil-magit magit magit-popup git-commit dash helm-themes helm-swoop helm-projectile helm-mode-manager helm-gitignore helm-flx helm-descbinds helm-ag ace-jump-helm-line smeargle gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link with-editor org-projectile org-present org org-pomodoro alert log4e gntp org-download htmlize gnuplot deft company-quickhelp zonokai-theme zenburn-theme zen-and-art-theme underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme tronesque-theme toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme sunny-day-theme sublime-themes subatomic256-theme subatomic-theme spacegray-theme soothe-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme seti-theme reverse-theme railscasts-theme purple-haze-theme professional-theme planet-theme phoenix-dark-pink-theme phoenix-dark-mono-theme pastels-on-dark-theme organic-green-theme omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme niflheim-theme naquadah-theme mustang-theme monokai-theme monochrome-theme molokai-theme moe-theme minimal-theme material-theme majapahit-theme lush-theme light-soap-theme jbeans-theme jazz-theme ir-black-theme inkpot-theme heroku-theme hemisu-theme hc-zenburn-theme gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme gandalf-theme flatui-theme flatland-theme firebelly-theme farmhouse-theme espresso-theme dracula-theme django-theme darktooth-theme darkokai-theme darkmine-theme darkburn-theme dakrone-theme cyberpunk-theme color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized clues-theme cherry-blossom-theme busybee-theme bubbleberry-theme birds-of-paradise-plus-theme badwolf-theme apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes afternoon-theme wgrep smex ivy-hydra counsel-projectile counsel swiper ivy js2-refactor helm-c-yasnippet auto-yasnippet youdao-dictionary names chinese-word-at-point web-mode web-beautify tagedit slim-mode scss-mode sass-mode pug-mode mmm-mode markdown-toc markdown-mode livid-mode skewer-mode simple-httpd less-css-mode json-mode json-snatcher json-reformat multiple-cursors js2-mode js-doc helm-css-scss helm-company haml-mode gh-md flycheck-pos-tip flycheck emmet-mode company-web web-completion-data company-tern dash-functional tern company-statistics company coffee-mode yasnippet ac-ispell auto-complete pangu-spacing mwim find-by-pinyin-dired chinese-pyim chinese-pyim-basedict pos-tip ace-pinyin pinyinlib ace-jump-mode ws-butler window-numbering which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib package-build spacemacs-theme))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
