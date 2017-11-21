@@ -1,0 +1,26 @@
+# -*- mode: snippet -*-
+# name: template-vue-html
+# key: tpl-vue
+# --
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Vue.js</title>
+    <script src="https://unpkg.com/vue"></script>
+    <style></style>
+  </head>
+  <body>
+    <div id="app">
+      $0
+    </div>
+    <script>
+    var app = new Vue({
+      el: '#app',
+      data: {
+      },
+      methods: {
+      }
+    })
+    </script>
+  </body>
+</html>
