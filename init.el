@@ -167,8 +167,8 @@ values."
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
    dotspacemacs-default-font (if (eq system-type 'windows-nt)
-                                 '("Consolas"
-                                   :size 14
+                                 '("Inziu Iosevka SC"
+                                   :size 13
                                    :weight normal
                                    :width normal
                                    :powerline-scale 1)
@@ -374,7 +374,15 @@ you should place your code here."
         (prefer-coding-system 'utf-8-unix)
 
         ;; Chinese mono font
-        (spacemacs//set-monospaced-font "Consolas" "Yahei Mono" 14 14)
+        ;; (spacemacs//set-monospaced-font "Consolas" "Yahei Mono" 14 14)
+        ;; Use 1:2 strict fonts like:
+        ;; 1. Ubuntu Mono (https://design.ubuntu.com/font/)
+        ;; 2. M+ 1m (https://mplus-fonts.osdn.jp/)
+        ;; 3. 文泉驿
+        ;; (spacemacs//set-monospaced-font "Ubuntu Mono" "WenQuanYi Micro Hei Mono" 14 14)
+        ;; (spacemacs//set-monospaced-font "Ubuntu Mono" "Noto Sans Mono CJK SC Regular" 14 14)
+        ;; (spacemacs//set-monospaced-font "Ubuntu Mono" "Inziu Iosevka TC" 14 14)
+        (spacemacs//set-monospaced-font "Inziu Iosevka SC" "Inziu Iosevka SC" 13 13)
         (setq tramp-ssh-controlmaster-options
               "-o ControlMaster=auto -o ControlPath='tramp.%%C' -o ControlPersist=no"))
     (progn
