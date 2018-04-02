@@ -91,6 +91,7 @@ values."
                                     evil-unimpaired ;; melpa connect timeout
                                     tern
                                     hl-todo
+                                    org-projectile ;; Disable org-projectile package for some unfix bugs
                                     )
    ;; Defines the behaviour of Spacemacs when installing packages.
    ;; Possible values are `used-only', `used-but-keep-unused' and `all'.
@@ -116,7 +117,7 @@ values."
    ;; This variable has no effect if Emacs is launched with the parameter
    ;; `--insecure' which forces the value of this variable to nil.
    ;; (default t)
-   dotspacemacs-elpa-https t
+   dotspacemacs-elpa-https nil
    ;; Maximum allowed time in seconds to contact an ELPA repository.
    dotspacemacs-elpa-timeout 5
    ;; If non nil then spacemacs will check for updates at startup
@@ -167,8 +168,8 @@ values."
    ;; Default font, or prioritized list of fonts. `powerline-scale' allows to
    ;; quickly tweak the mode-line size to make separators look not too crappy.
    dotspacemacs-default-font (if (eq system-type 'windows-nt)
-                                 '("Consolas"
-                                   :size 14
+                                 '("Inziu Iosevka SC"
+                                   :size 13
                                    :weight normal
                                    :width normal
                                    :powerline-scale 1)
@@ -286,8 +287,18 @@ values."
    ;; scrolling overrides the default behavior of Emacs which recenters point
    ;; when it reaches the top or bottom of the screen. (default t)
    dotspacemacs-smooth-scrolling t
-   ;; If non nil line numbers are turned on in all `prog-mode' and `text-mode'
-   ;; derivatives. If set to `relative', also turns on relative line numbers.
+   ;; Control line numbers activation.
+   ;; If set to `t' or `relative' line numbers are turned on in all `prog-mode' and
+   ;; `text-mode' derivatives. If set to `relative', line numbers are relative.
+   ;; This variable can also be set to a property list for finer control:
+   ;; '(:relative nil
+   ;;   :disabled-for-modes dired-mode
+   ;;                       doc-view-mode
+   ;;                       markdown-mode
+   ;;                       org-mode
+   ;;                       pdf-view-mode
+   ;;                       text-mode
+   ;;   :size-limit-kb 1000)
    ;; (default nil)
    dotspacemacs-line-numbers nil
    ;; Code folding method. Possible values are `evil' and `origami'.
@@ -297,7 +308,7 @@ values."
    ;; (default nil)
    dotspacemacs-smartparens-strict-mode nil
    ;; If non-nil pressing the closing parenthesis `)' key in insert mode passes
-   ;; over any automatically added closing parenthesis, bracket, quote, etc鈥?
+   ;; over any automatically added closing parenthesis, bracket, quote, etc...
    ;; This can be temporary disabled by pressing `C-q' before `)'. (default nil)
    dotspacemacs-smart-closing-parenthesis nil
    ;; Select a scope to highlight delimiters. Possible values are `any',
@@ -341,7 +352,7 @@ explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
 
   ;; debug when error occur
-  (setq debug-on-error t)
+  ;; (setq debug-on-error t)
 
   ;; encode
   (if (eq system-type 'windows-nt)
@@ -364,7 +375,15 @@ you should place your code here."
         (prefer-coding-system 'utf-8-unix)
 
         ;; Chinese mono font
-        (spacemacs//set-monospaced-font "Consolas" "Yahei Mono" 14 14)
+        ;; (spacemacs//set-monospaced-font "Consolas" "Yahei Mono" 14 14)
+        ;; Use 1:2 strict fonts like:
+        ;; 1. Ubuntu Mono (https://design.ubuntu.com/font/)
+        ;; 2. M+ 1m (https://mplus-fonts.osdn.jp/)
+        ;; 3. 文泉驿
+        ;; (spacemacs//set-monospaced-font "Ubuntu Mono" "WenQuanYi Micro Hei Mono" 14 14)
+        ;; (spacemacs//set-monospaced-font "Ubuntu Mono" "Noto Sans Mono CJK SC Regular" 14 14)
+        ;; (spacemacs//set-monospaced-font "Ubuntu Mono" "Inziu Iosevka TC" 14 14)
+        (spacemacs//set-monospaced-font "Inziu Iosevka SC" "Inziu Iosevka SC" 13 13)
         (setq tramp-ssh-controlmaster-options
               "-o ControlMaster=auto -o ControlPath='tramp.%%C' -o ControlPersist=no"))
     (progn
@@ -454,13 +473,12 @@ you should place your code here."
   ;; emmet-mode
   (add-hook 'emmet-mode-hook (lambda () (setq emmet-indentation 2)))
 
-  ;; (defun my-org-mode-hook ()
-  ;;   "Hooks for org-mode."
-  ;;   ;; This one is for the beginning char
-  ;;   (setcar org-emphasis-regexp-components " \t('\" {（")
-  ;;   ;; This one is for the ending char.
-  ;;   (setcar (nthcdr 1 org-emphasis-regexp-components) "- \t.,: !?;，。）'\")}\\"))
-  ;; (add-hook 'org-mode-hook 'my-org-mode-hook)
+  (defun my-org-mode-hook ()
+   "Hooks for org-mode."
+   (define-key org-mode-map [M-return] 'org-meta-return))
+  (add-hook 'org-mode-hook 'my-org-mode-hook)
+  ;; (define-key org-mode-map [M-return] 'org-meta-return)
+
 
   ;; Make org-mode friendly for Chinese chars.
   (setq org-emphasis-regexp-components
@@ -1318,6 +1336,7 @@ i{
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
