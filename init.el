@@ -159,7 +159,8 @@ values."
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press <SPC> T n to cycle to the next theme in the list (works great
    ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(sanityinc-solarized-dark
+   dotspacemacs-themes '(sanityinc-solarized-light
+                         sanityinc-solarized-dark
                          spacemacs-dark
                          spacemacs-light)
    ;; If non nil the cursor color matches the state color in GUI Emacs.
@@ -495,6 +496,8 @@ you should place your code here."
 
   ;; org startup indented on org file by default
   (setq org-startup-indented t)
+  ;; Don't enable this because it breaks access to emacs from my Android phone
+  (setq org-startup-with-inline-images nil)
   ;; hide log & clock info as default
   (setq org-log-into-drawer t)
   ;; allows changing todo states with S-left and S-right skipping all of the normal processing when entering or leaving a todo state. This cycles through the todo states but skips setting timestamps and entering notes which is very convenient when all you want to do is fix up the status of an entry.
@@ -648,8 +651,8 @@ you should place your code here."
            "* %?\n%U\n\n" :clock-in t :clock-resume t :empty-lines 1)
           ("o" "Oneway Task" entry (file+headline "~/org/oneway/oneway.org" "Tasks")
            "* TODO %?\n%U\n" :clock-in t :clock-resume t :empty-lines 1)
-          ("m" "Meeting" entry (file+datetree "~/org/journal.org")
-           "* MEETING with %? :MEETING:\n%U\n" :clock-in t :clock-resume t :empty-lines 1)
+          ("m" "Meeting" entry (file+datetree "~/org/inbox.org")
+           "* MEETING %? :MEETING:\n%U\nMinutes\n1. " :clock-in t :clock-resume t :empty-lines 1)
           ("p" "Phone call" entry (file+datetree "~/org/journal.org")
            "* PHONE %? :PHONE:\n%U\n" :clock-in t :clock-resume t :empty-lines 1)
           ("h" "Habit" entry (file+datetree "~/org/inbox.org" "Habits")
@@ -898,8 +901,8 @@ A prefix arg forces clock in of the default task."
   (setq org-export-with-toc nil)
 
   ;; Targets include this file and any file contributing to the agenda - up to 2 levels deep
-  (setq org-refile-targets (quote ((nil :maxlevel . 2)
-                                   (org-agenda-files :maxlevel . 2))))
+  (setq org-refile-targets (quote ((nil :maxlevel . 3)
+                                   (org-agenda-files :maxlevel . 3))))
 
   ;; Use full outline paths for refile targets - we file directly with IDO
   (setq org-refile-use-outline-path 'file)
@@ -1029,9 +1032,9 @@ A prefix arg forces clock in of the default task."
 
   ;; global company mode
   (global-company-mode t)
-  ;; disable auto company popup
-  (setq company-idle-delay nil)
   (global-set-key (kbd "C-'") 'company-complete-common)
+  ;; When set delay to nil, means that disabling auto company popup
+  (setq company-idle-delay 0.2)
 
   (define-key evil-normal-state-map (kbd "u") 'undo-tree-undo)
   ;; Youdao Dictionary
@@ -1326,10 +1329,10 @@ i{
      (C . t)
      (ditaa . t)))
 
-                                        ; Do not prompt to confirm evaluation
-                                        ; This may be dangerous - make sure you understand the consequences
-                                        ; of setting this -- see the docstring for details
-  ;; (setq org-confirm-babel-evaluate nil)
+  ;; Do not prompt to confirm evaluation
+  ;; This may be dangerous - make sure you understand the consequences
+  ;; of setting this -- see the docstring for details
+  (setq org-confirm-babel-evaluate nil)
   ;; user-config end
   )
 
@@ -1341,8 +1344,11 @@ i{
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
- (custom-set-faces
+ '(package-selected-packages
+   (quote
+    (yaml-mode xterm-color which-key web-mode vue-mode ssass-mode vue-html-mode use-package spaceline powerline scss-mode pug-mode persp-mode paradox orgit org-present org-plus-contrib org-mime org-download mwim lispy zoutline linum-relative js2-refactor multiple-cursors ivy-hydra hydra htmlize highlight-indentation helm-make helm helm-core gitignore-mode gitconfig-mode gitattributes-mode git-timemachine flx-ido fill-column-indicator eyebrowse expand-region exec-path-from-shell evil-surround evil-nerd-commenter evil-matchit evil-magit eshell-prompt-extras dumb-jump f deft define-word counsel-projectile projectile counsel swiper ivy company-web bind-key auto-compile packed adaptive-wrap ace-window ace-link yasnippet dash-functional company iedit smartparens highlight evil goto-chg flycheck epl avy magit magit-popup git-commit ghub let-alist with-editor async markdown-mode alert simple-httpd s dash js2-mode names youdao-dictionary xref-js2 ws-butler winum wgrep web-completion-data web-beautify volatile-highlights vi-tilde-fringe uuidgen unfill undo-tree toc-org tagedit spinner smex smeargle slim-mode shell-pop sass-mode restart-emacs request rainbow-delimiters popwin pkg-info pcre2el org-pomodoro open-junk-file neotree multi-term move-text mmm-mode markdown-toc magit-gitflow macrostep lorem-ipsum log4e livid-mode link-hint less-css-mode json-mode js-doc info+ indent-guide hungry-delete highlight-parentheses highlight-numbers hide-comnt help-fns+ graphviz-dot-mode google-translate golden-ratio gnuplot gntp git-messenger git-link gh-md fuzzy flycheck-pos-tip flx fancy-battery evil-visualstar evil-visual-mark-mode evil-tutor evil-search-highlight-persist evil-numbers evil-mc evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu eshell-z esh-help emmet-mode elisp-slime-nav edit-indirect diminish company-tern company-statistics column-enforce-mode color-theme-sanityinc-solarized coffee-mode clean-aindent-mode auto-yasnippet auto-highlight-symbol aggressive-indent ac-ispell))))
+
+(custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
