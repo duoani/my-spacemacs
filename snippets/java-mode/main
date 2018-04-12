@@ -1,5 +1,5 @@
 # -*- mode: snippet -*-
-# name: main
+# name: main function
 # key: main
 # --
 public static void main(String[] args) {
