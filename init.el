@@ -437,6 +437,12 @@ you should place your code here."
       (if (display-graphic-p)
           (spacemacs//set-monospaced-font "Source Code Pro" "Yahei Mono" 13 13))))
 
+  (if (eq system-type 'windows-nt)
+      (progn
+        (setq exec-path (append exec-path '("/usr/local/texlive/2017/bin/x86_64-darwin/")))
+        (setq org-latex-pdf-process '("xelatex -interaction nonstopmode %f"
+                                      "xelatex -interaction nonstopmode %f"))))
+
   ;; Smooth Scrolling
   (setq scroll-margin 5
         scroll-conservatively 9999
@@ -518,9 +524,9 @@ you should place your code here."
         '(
           "- “：，。、  \t('\"{"        ;pre
           "- ”：，。、 \t.,:!?;'\")}\\" ;post
-          " \t\r\n,\"'"                 ;border *forbidden*
-          "."                           ;body-regexp
-          1                             ; newline
+          " \t\r\n,\"'"                  ;border *forbidden*
+          "."                            ;body-regexp
+          1                              ; newline
           ))
 
   ;; Register
@@ -1394,10 +1400,12 @@ i{
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(org-agenda-files
+   (quote
+    ("~/org/project/sdk.org" "/Users/duoani/org/emacs.org" "/Users/duoani/org/eslint.org" "/Users/duoani/org/git.org" "/Users/duoani/org/inbox.org" "/Users/duoani/org/journal.org" "/Users/duoani/org/links.org" "/Users/duoani/org/meeting.org" "/Users/duoani/org/project/ad-admin.org" "/Users/duoani/org/project/ad.org" "/Users/duoani/org/project/site.org")))
  '(package-selected-packages
    (quote
-    (helm-org-rifle yapfify pyvenv pytest pyenv-mode py-isort pip-requirements live-py-mode hy-mode cython-mode company-anaconda anaconda-mode pythonic yaml-mode xterm-color which-key web-mode vue-mode ssass-mode vue-html-mode use-package spaceline powerline scss-mode pug-mode persp-mode paradox orgit org-present org-plus-contrib org-mime org-download mwim lispy zoutline linum-relative js2-refactor multiple-cursors ivy-hydra hydra htmlize highlight-indentation helm-make helm helm-core gitignore-mode gitconfig-mode gitattributes-mode git-timemachine flx-ido fill-column-indicator eyebrowse expand-region exec-path-from-shell evil-surround evil-nerd-commenter evil-matchit evil-magit eshell-prompt-extras dumb-jump f deft define-word counsel-projectile projectile counsel swiper ivy company-web bind-key auto-compile packed adaptive-wrap ace-window ace-link yasnippet dash-functional company iedit smartparens highlight evil goto-chg flycheck epl avy magit magit-popup git-commit ghub let-alist with-editor async markdown-mode alert simple-httpd s dash js2-mode names youdao-dictionary xref-js2 ws-butler winum wgrep web-completion-data web-beautify volatile-highlights vi-tilde-fringe uuidgen unfill undo-tree toc-org tagedit spinner smex smeargle slim-mode shell-pop sass-mode restart-emacs request rainbow-delimiters popwin pkg-info pcre2el org-pomodoro open-junk-file neotree multi-term move-text mmm-mode markdown-toc magit-gitflow macrostep lorem-ipsum log4e livid-mode link-hint less-css-mode json-mode js-doc info+ indent-guide hungry-delete highlight-parentheses highlight-numbers hide-comnt help-fns+ graphviz-dot-mode google-translate golden-ratio gnuplot gntp git-messenger git-link gh-md fuzzy flycheck-pos-tip flx fancy-battery evil-visualstar evil-visual-mark-mode evil-tutor evil-search-highlight-persist evil-numbers evil-mc evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu eval-sexp-fu eshell-z esh-help emmet-mode elisp-slime-nav edit-indirect diminish company-tern company-statistics column-enforce-mode color-theme-sanityinc-solarized coffee-mode clean-aindent-mode auto-yasnippet auto-highlight-symbol aggressive-indent ac-ispell))))
-
+    (helm-org-rifle winum unfill org-mime fuzzy edit-indirect org-category-capture linum-relative hungry-delete highlight-parentheses highlight-numbers highlight-indentation flx-ido fill-column-indicator evil-search-highlight-persist ghub let-alist evil-exchange diminish define-word epl clean-aindent-mode adaptive-wrap goto-chg f s pyenv-mode company-anaconda anaconda-mode yapfify pyvenv pytest py-isort pip-requirements live-py-mode hy-mode cython-mode pythonic xref-js2 yaml-mode vue-mode ssass-mode vue-html-mode lispy zoutline phpunit phpcbf php-extras php-auto-yasnippets graphviz-dot-mode drupal-mode php-mode xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help open-junk-file neotree move-text link-hint info+ indent-guide hide-comnt help-fns+ helm-make helm helm-core google-translate eyebrowse expand-region exec-path-from-shell evil-surround evil-nerd-commenter evil-mc evil-matchit evil-escape evil-ediff evil-anzu dumb-jump autothemer column-enforce-mode bind-key auto-compile packed aggressive-indent ace-window ace-link avy iedit smartparens bind-map highlight evil projectile async hydra orgit magit-gitflow evil-magit magit magit-popup git-commit dash helm-themes helm-swoop helm-projectile helm-mode-manager helm-gitignore helm-flx helm-descbinds helm-ag ace-jump-helm-line smeargle gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link with-editor org-projectile org-present org org-pomodoro alert log4e gntp org-download htmlize gnuplot deft company-quickhelp zonokai-theme zenburn-theme zen-and-art-theme underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme tronesque-theme toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme sunny-day-theme sublime-themes subatomic256-theme subatomic-theme spacegray-theme soothe-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme seti-theme reverse-theme railscasts-theme purple-haze-theme professional-theme planet-theme phoenix-dark-pink-theme phoenix-dark-mono-theme pastels-on-dark-theme organic-green-theme omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme niflheim-theme naquadah-theme mustang-theme monokai-theme monochrome-theme molokai-theme moe-theme minimal-theme material-theme majapahit-theme lush-theme light-soap-theme jbeans-theme jazz-theme ir-black-theme inkpot-theme heroku-theme hemisu-theme hc-zenburn-theme gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme gandalf-theme flatui-theme flatland-theme firebelly-theme farmhouse-theme espresso-theme dracula-theme django-theme darktooth-theme darkokai-theme darkmine-theme darkburn-theme dakrone-theme cyberpunk-theme color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized clues-theme cherry-blossom-theme busybee-theme bubbleberry-theme birds-of-paradise-plus-theme badwolf-theme apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes afternoon-theme wgrep smex ivy-hydra counsel-projectile counsel swiper ivy js2-refactor helm-c-yasnippet auto-yasnippet youdao-dictionary names chinese-word-at-point web-mode web-beautify tagedit slim-mode scss-mode sass-mode pug-mode mmm-mode markdown-toc markdown-mode livid-mode skewer-mode simple-httpd less-css-mode json-mode json-snatcher json-reformat multiple-cursors js2-mode js-doc helm-css-scss helm-company haml-mode gh-md flycheck-pos-tip flycheck emmet-mode company-web web-completion-data company-tern dash-functional tern company-statistics company coffee-mode yasnippet ac-ispell auto-complete pangu-spacing mwim find-by-pinyin-dired chinese-pyim chinese-pyim-basedict pos-tip ace-pinyin pinyinlib ace-jump-mode ws-butler window-numbering which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib package-build spacemacs-theme))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
