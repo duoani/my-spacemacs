@@ -353,9 +353,6 @@ This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
 
-  ;; icons for ivy-mode
-  (all-the-icons-ivy-setup)
-
   (defun zilongshanren//insert-org-or-md-img-link (prefix imagename)
     (if (equal (file-name-extension (buffer-file-name)) "org")
         (insert (format "[[%s][%s%s]]" imagename prefix imagename))
