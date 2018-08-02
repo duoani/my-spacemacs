@@ -524,9 +524,9 @@ you should place your code here."
         '(
           "- “：，。、  \t('\"{"        ;pre
           "- ”：，。、 \t.,:!?;'\")}\\" ;post
-          " \t\r\n,\"'"                  ;border *forbidden*
-          "."                            ;body-regexp
-          1                              ; newline
+          " \t\r\n,\"'"                 ;border *forbidden*
+          "."                           ;body-regexp
+          1                             ; newline
           ))
 
   ;; Register
@@ -561,6 +561,14 @@ you should place your code here."
   ;; Goto currently clockly items
   (global-set-key (kbd "<f11>") 'org-clock-goto)
 
+  (defun org-auto-tag ()
+    (interactive)
+    (let ((alltags (append org-tag-persistent-alist org-tag-alist))
+          (headline-words (split-string (downcase (org-get-heading t t)))))
+      (mapcar (lambda (word)
+                (if (assoc word alltags)
+                    (org-toggle-tag word 'on)))
+              headline-words)))
   ;; (setq org-tag-alist '((:startgrouptag)
   ;;                       (:grouptags)
   ;;                       ("@home" . ?h)
@@ -578,57 +586,49 @@ you should place your code here."
   ;;                       ("SysVideoAdmin")
   ;;                       (:endgrouptag)
   ;;                       ))
-  (setq org-tag-alist '((:startgroup . nil)
-                        ("@office" . ?w)
-                        ("@home" . ?h)
-                        (:endgroup . nil)
+  (setq org-tag-alist
+        '((:startgroup . nil)
+          ("@office" . ?w)
+          ("@home" . ?h)
+          (:endgroup . nil)
 
-                        ("Video" . nil)
-                        ("VideoAdmin" . nil)
-                        ("Developer" . nil)
-                        ("DeveloperAdmin" . nil)
-                        ("WebSite" . nil)
-                        ("WorkOrder" . nil)
-                        ("Analysis" . nil)
+          (:startgroup . nil)
+          ("git" . nil)
+          (:endgroup . nil)
 
-                        ("Git" . nil)
+          (:startgroup . nil)
+          ("nodejs" . nil)
+          (:grouptags)
+          ("webpack")
+          ("express")
+          (:endgroup . nil)
 
-                        (:startgroup . nil)
-                        ("NodeJS" . nil)
-                        (:grouptags)
-                        ("Webpack")
-                        ("Express")
-                        (:endgroup . nil)
+          (:startgroup . nil)
+          ("javascript" . nil)
+          (:grouptags)
+          ("es5")
+          ("es6")
+          (:endgroup . nil)
 
-                        (:startgroup . nil)
-                        ("Javascript" . nil)
-                        (:grouptags)
-                        ("ES5")
-                        ("ES6")
-                        (:endgroup . nil)
+          (:startgroup . nil)
+          ("css" . nil)
+          (:grouptags)
+          ("css3")
+          (:endgroup . nil)
 
-                        (:startgroup . nil)
-                        ("CSS" . nil)
-                        (:grouptags)
-                        ("CSS3")
-                        (:endgroup . nil)
+          (:startgroup . nil)
+          ("html" . nil)
+          (:grouptags)
+          ("html5")
+          (:endgroup . nil)
 
-                        (:startgroup . nil)
-                        ("HTML" . nil)
-                        (:grouptags)
-                        ("HTML5")
-                        (:endgroup . nil)
-
-                        ("WebApp")
-
-                        (:startgroup . nil)
-                        ("Emacs" . nil)
-                        (:grouptags)
-                        ("Spacemacs")
-                        ("Lisp")
-                        (:endgroup . nil)
-
-                        ))
+          (:startgroup . nil)
+          ("emacs" . nil)
+          (:grouptags)
+          ("spacemacs")
+          ("lisp")
+          (:endgroup . nil)
+          ))
 
   ;; Todo keywords
   (setq org-todo-keywords
@@ -662,17 +662,21 @@ you should place your code here."
                 ("TODO" ("WAITING") ("CANCELED") ("HOLD"))
                 ("NEXT" ("WAITING") ("CANCELED") ("HOLD"))
                 ("DONE" ("WAITING") ("CANCELED") ("HOLD")))))
+  
+  ;; org-capture settings
+  (setq org-directory "~/org")
+  (setq org-default-notes-file "~/org/inbox.org")
 
+  ;; Count all TODO entries in the subtree
+  ;; see https://orgmode.org/org.html#Breaking-down-tasks
+  (setq org-hierarchical-todo-statistics nil)
+  ;; Copy from: https://orgmode.org/org.html#Breaking-down-tasks
   (defun org-summary-todo (n-done n-not-done)
     "Switch entry to DONE when all subentries are done, to TODO otherwise. Parent entry must be added a [%] or [/] tag to enable statistics."
     (let (org-log-done org-log-states)  ; turn off logging
       (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
 
   (add-hook 'org-after-todo-statistics-hook 'org-summary-todo)
-
-  ;; org-capture settings
-  (setq org-directory "~/org")
-  (setq org-default-notes-file "~/org/inbox.org")
 
   ;; Capture templates for: TODO tasks, Notes, appointments, phone calls, meetings, and org-protocol
   ;; the %i would copy the selected text into the template
@@ -768,168 +772,168 @@ you should place your code here."
 
   ;; (setq duo/keep-clock-running nil)
 
-;;   (defun duo/clock-in-to-next (kw)
-;;     "Switch a task from TODO to NEXT when clocking in.
-;; Skips capture tasks, projects, and subprojects.
-;; Switch projects and subprojects from NEXT back to TODO"
-;;     (when (not (and (boundp 'org-capture-mode) org-capture-mode))
-;;       (cond
-;;        ((and (member (org-get-todo-state) (list "TODO"))
-;;              (duo/is-task-p))
-;;         "NEXT")
-;;        ((and (member (org-get-todo-state) (list "NEXT"))
-;;              (duo/is-project-p))
-;;         "TODO"))))
+  ;;   (defun duo/clock-in-to-next (kw)
+  ;;     "Switch a task from TODO to NEXT when clocking in.
+  ;; Skips capture tasks, projects, and subprojects.
+  ;; Switch projects and subprojects from NEXT back to TODO"
+  ;;     (when (not (and (boundp 'org-capture-mode) org-capture-mode))
+  ;;       (cond
+  ;;        ((and (member (org-get-todo-state) (list "TODO"))
+  ;;              (duo/is-task-p))
+  ;;         "NEXT")
+  ;;        ((and (member (org-get-todo-state) (list "NEXT"))
+  ;;              (duo/is-project-p))
+  ;;         "TODO"))))
 
-;;   (defun duo/is-project-p ()
-;;     "Any task with a todo keyword subtask"
-;;     (save-restriction
-;;       (widen)
-;;       (let ((has-subtask)
-;;             (subtree-end (save-excursion (org-end-of-subtree t)))
-;;             (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
-;;         (save-excursion
-;;           (forward-line 1)
-;;           (while (and (not has-subtask)
-;;                       (< (point) subtree-end)
-;;                       (re-search-forward "^\*+ " subtree-end t))
-;;             (when (member (org-get-todo-state) org-todo-keywords-1)
-;;               (setq has-subtask t))))
-;;         (and is-a-task has-subtask))))
+  ;;   (defun duo/is-project-p ()
+  ;;     "Any task with a todo keyword subtask"
+  ;;     (save-restriction
+  ;;       (widen)
+  ;;       (let ((has-subtask)
+  ;;             (subtree-end (save-excursion (org-end-of-subtree t)))
+  ;;             (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
+  ;;         (save-excursion
+  ;;           (forward-line 1)
+  ;;           (while (and (not has-subtask)
+  ;;                       (< (point) subtree-end)
+  ;;                       (re-search-forward "^\*+ " subtree-end t))
+  ;;             (when (member (org-get-todo-state) org-todo-keywords-1)
+  ;;               (setq has-subtask t))))
+  ;;         (and is-a-task has-subtask))))
 
-;;   (defun duo/is-project-subtree-p ()
-;;     "Any task with a todo keyword that is in a project subtree.
-;; Callers of this function already widen the buffer view."
-;;     (let ((task (save-excursion (org-back-to-heading 'invisible-ok)
-;;                                 (point))))
-;;       (save-excursion
-;;         (duo/find-project-task)
-;;         (if (equal (point) task)
-;;             nil
-;;           t))))
+  ;;   (defun duo/is-project-subtree-p ()
+  ;;     "Any task with a todo keyword that is in a project subtree.
+  ;; Callers of this function already widen the buffer view."
+  ;;     (let ((task (save-excursion (org-back-to-heading 'invisible-ok)
+  ;;                                 (point))))
+  ;;       (save-excursion
+  ;;         (duo/find-project-task)
+  ;;         (if (equal (point) task)
+  ;;             nil
+  ;;           t))))
 
-;;   (defun duo/is-task-p ()
-;;     "Any task with a todo keyword and no subtask"
-;;     (save-restriction
-;;       (widen)
-;;       (let ((has-subtask)
-;;             (subtree-end (save-excursion (org-end-of-subtree t)))
-;;             (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
-;;         (save-excursion
-;;           (forward-line 1)
-;;           (while (and (not has-subtask)
-;;                       (< (point) subtree-end)
-;;                       (re-search-forward "^\*+ " subtree-end t))
-;;             (when (member (org-get-todo-state) org-todo-keywords-1)
-;;               (setq has-subtask t))))
-;;         (and is-a-task (not has-subtask)))))
+  ;;   (defun duo/is-task-p ()
+  ;;     "Any task with a todo keyword and no subtask"
+  ;;     (save-restriction
+  ;;       (widen)
+  ;;       (let ((has-subtask)
+  ;;             (subtree-end (save-excursion (org-end-of-subtree t)))
+  ;;             (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
+  ;;         (save-excursion
+  ;;           (forward-line 1)
+  ;;           (while (and (not has-subtask)
+  ;;                       (< (point) subtree-end)
+  ;;                       (re-search-forward "^\*+ " subtree-end t))
+  ;;             (when (member (org-get-todo-state) org-todo-keywords-1)
+  ;;               (setq has-subtask t))))
+  ;;         (and is-a-task (not has-subtask)))))
 
-;;   (defun duo/is-subproject-p ()
-;;     "Any task which is a subtask of another project"
-;;     (let ((is-subproject)
-;;           (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
-;;       (save-excursion
-;;         (while (and (not is-subproject) (org-up-heading-safe))
-;;           (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
-;;             (setq is-subproject t))))
-;;       (and is-a-task is-subproject)))
+  ;;   (defun duo/is-subproject-p ()
+  ;;     "Any task which is a subtask of another project"
+  ;;     (let ((is-subproject)
+  ;;           (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
+  ;;       (save-excursion
+  ;;         (while (and (not is-subproject) (org-up-heading-safe))
+  ;;           (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
+  ;;             (setq is-subproject t))))
+  ;;       (and is-a-task is-subproject)))
 
-;;   (defun duo/find-project-task ()
-;;     "Move point to the parent (project) task if any"
-;;     (save-restriction
-;;       (widen)
-;;       (let ((parent-task (save-excursion (org-back-to-heading 'invisible-ok) (point))))
-;;         (while (org-up-heading-safe)
-;;           (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
-;;             (setq parent-task (point))))
-;;         (goto-char parent-task)
-;;         parent-task)))
+  ;;   (defun duo/find-project-task ()
+  ;;     "Move point to the parent (project) task if any"
+  ;;     (save-restriction
+  ;;       (widen)
+  ;;       (let ((parent-task (save-excursion (org-back-to-heading 'invisible-ok) (point))))
+  ;;         (while (org-up-heading-safe)
+  ;;           (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
+  ;;             (setq parent-task (point))))
+  ;;         (goto-char parent-task)
+  ;;         parent-task)))
 
-;;   (defun duo/punch-in (arg)
-;;     "Start continuous clocking and set the default task to the
-;; selected task.  If no task is selected set the Organization task
-;; as the default task."
-;;     (interactive "p")
-;;     (setq duo/keep-clock-running t)
-;;     (if (equal major-mode 'org-agenda-mode)
-;;         ;;
-;;         ;; We're in the agenda
-;;         ;;
-;;         (let* ((marker (org-get-at-bol 'org-hd-marker))
-;;                (tags (org-with-point-at marker (org-get-tags-at))))
-;;           (if (and (eq arg 4) tags)
-;;               (org-agenda-clock-in '(16))
-;;             (duo/clock-in-organization-task-as-default)))
-;;       ;;
-;;       ;; We are not in the agenda
-;;       ;;
-;;       (save-restriction
-;;         (widen)
-;;                                         ; Find the tags on the current task
-;;         (if (and (equal major-mode 'org-mode) (not (org-before-first-heading-p)) (eq arg 4))
-;;             (org-clock-in '(16))
-;;           (duo/clock-in-organization-task-as-default)))))
+  ;;   (defun duo/punch-in (arg)
+  ;;     "Start continuous clocking and set the default task to the
+  ;; selected task.  If no task is selected set the Organization task
+  ;; as the default task."
+  ;;     (interactive "p")
+  ;;     (setq duo/keep-clock-running t)
+  ;;     (if (equal major-mode 'org-agenda-mode)
+  ;;         ;;
+  ;;         ;; We're in the agenda
+  ;;         ;;
+  ;;         (let* ((marker (org-get-at-bol 'org-hd-marker))
+  ;;                (tags (org-with-point-at marker (org-get-tags-at))))
+  ;;           (if (and (eq arg 4) tags)
+  ;;               (org-agenda-clock-in '(16))
+  ;;             (duo/clock-in-organization-task-as-default)))
+  ;;       ;;
+  ;;       ;; We are not in the agenda
+  ;;       ;;
+  ;;       (save-restriction
+  ;;         (widen)
+  ;;                                         ; Find the tags on the current task
+  ;;         (if (and (equal major-mode 'org-mode) (not (org-before-first-heading-p)) (eq arg 4))
+  ;;             (org-clock-in '(16))
+  ;;           (duo/clock-in-organization-task-as-default)))))
 
-;;   (defun duo/punch-out ()
-;;     (interactive)
-;;     (setq duo/keep-clock-running nil)
-;;     (when (org-clock-is-active)
-;;       (org-clock-out))
-;;     (org-agenda-remove-restriction-lock))
+  ;;   (defun duo/punch-out ()
+  ;;     (interactive)
+  ;;     (setq duo/keep-clock-running nil)
+  ;;     (when (org-clock-is-active)
+  ;;       (org-clock-out))
+  ;;     (org-agenda-remove-restriction-lock))
 
   ;; (defvar duo/organization-task-id "eb155a82-92b2-4f25-a3c6-0304591af2f9")
 
-;;   (defun duo/clock-in-organization-task-as-default ()
-;;     (interactive)
-;;     (org-with-point-at (org-id-find duo/organization-task-id 'marker)
-;;       (org-clock-in '(16))))
+  ;;   (defun duo/clock-in-organization-task-as-default ()
+  ;;     (interactive)
+  ;;     (org-with-point-at (org-id-find duo/organization-task-id 'marker)
+  ;;       (org-clock-in '(16))))
 
-;;   (defun duo/clock-in-default-task ()
-;;     (save-excursion
-;;       (org-with-point-at org-clock-default-task
-;;         (org-clock-in))))
+  ;;   (defun duo/clock-in-default-task ()
+  ;;     (save-excursion
+  ;;       (org-with-point-at org-clock-default-task
+  ;;         (org-clock-in))))
 
-;;   (defun duo/clock-in-parent-task ()
-;;     "Move point to the parent (project) task if any and clock in"
-;;     (let ((parent-task))
-;;       (save-excursion
-;;         (save-restriction
-;;           (widen)
-;;           (while (and (not parent-task) (org-up-heading-safe))
-;;             (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
-;;               (setq parent-task (point))))
-;;           (if parent-task
-;;               (org-with-point-at parent-task
-;;                 (org-clock-in))
-;;             (when duo/keep-clock-running
-;;               (duo/clock-in-default-task)))))))
+  ;;   (defun duo/clock-in-parent-task ()
+  ;;     "Move point to the parent (project) task if any and clock in"
+  ;;     (let ((parent-task))
+  ;;       (save-excursion
+  ;;         (save-restriction
+  ;;           (widen)
+  ;;           (while (and (not parent-task) (org-up-heading-safe))
+  ;;             (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
+  ;;               (setq parent-task (point))))
+  ;;           (if parent-task
+  ;;               (org-with-point-at parent-task
+  ;;                 (org-clock-in))
+  ;;             (when duo/keep-clock-running
+  ;;               (duo/clock-in-default-task)))))))
 
-;;   (defun duo/clock-out-maybe ()
-;;     (when (and duo/keep-clock-running
-;;                (not org-clock-clocking-in)
-;;                (marker-buffer org-clock-default-task)
-;;                (not org-clock-resolving-clocks-due-to-idleness))
-;;       (duo/clock-in-parent-task)))
+  ;;   (defun duo/clock-out-maybe ()
+  ;;     (when (and duo/keep-clock-running
+  ;;                (not org-clock-clocking-in)
+  ;;                (marker-buffer org-clock-default-task)
+  ;;                (not org-clock-resolving-clocks-due-to-idleness))
+  ;;       (duo/clock-in-parent-task)))
 
-;;   (add-hook 'org-clock-out-hook 'duo/clock-out-maybe 'append)
+  ;;   (add-hook 'org-clock-out-hook 'duo/clock-out-maybe 'append)
 
-;;   (defun duo/clock-in-last-task (arg)
-;;     "Clock in the interrupted task if there is one
-;; Skip the default task and get the next one.
-;; A prefix arg forces clock in of the default task."
-;;     (interactive "p")
-;;     (let ((clock-in-to-task
-;;            (cond
-;;             ((eq arg 4) org-clock-default-task)
-;;             ((and (org-clock-is-active)
-;;                   (equal org-clock-default-task (cadr org-clock-history)))
-;;              (caddr org-clock-history))
-;;             ((org-clock-is-active) (cadr org-clock-history))
-;;             ((equal org-clock-default-task (car org-clock-history)) (cadr org-clock-history))
-;;             (t (car org-clock-history)))))
-;;       (widen)
-;;       (org-with-point-at clock-in-to-task
-;;         (org-clock-in nil))))
+  ;;   (defun duo/clock-in-last-task (arg)
+  ;;     "Clock in the interrupted task if there is one
+  ;; Skip the default task and get the next one.
+  ;; A prefix arg forces clock in of the default task."
+  ;;     (interactive "p")
+  ;;     (let ((clock-in-to-task
+  ;;            (cond
+  ;;             ((eq arg 4) org-clock-default-task)
+  ;;             ((and (org-clock-is-active)
+  ;;                   (equal org-clock-default-task (cadr org-clock-history)))
+  ;;              (caddr org-clock-history))
+  ;;             ((org-clock-is-active) (cadr org-clock-history))
+  ;;             ((equal org-clock-default-task (car org-clock-history)) (cadr org-clock-history))
+  ;;             (t (car org-clock-history)))))
+  ;;       (widen)
+  ;;       (org-with-point-at clock-in-to-task
+  ;;         (org-clock-in nil))))
 
   ;; ====== Time Report =======
   ;; Agenda clock report parameters
@@ -939,10 +943,10 @@ you should place your code here."
   ;; ====== Task Estimate ======
   ;; task estimate with column view
 
-  ; Set default column view headings: Task Effort Clock_Summary
+                                        ; Set default column view headings: Task Effort Clock_Summary
   (setq org-columns-default-format "%80ITEM(Task) %10Effort(Effort){:} %10CLOCKSUM")
-  ; global Effort estimate values
-  ; global STYLE property values for completion
+                                        ; global Effort estimate values
+                                        ; global STYLE property values for completion
   (setq org-global-properties (quote (("Effort_ALL" . "0:15 0:30 0:45 1:00 2:00 3:00 4:00 5:00 6:00 0:00")
                                       ("STYLE_ALL" . "habit"))))
   ;; Agenda log mode items to display (closed and state changes by default)
@@ -1106,6 +1110,26 @@ you should place your code here."
 
   ;; yasnippet settings
   (setq yas-snippet-dirs '("~/.spacemacs.d/snippets"))
+
+  ;; calc rem
+  ;; (defun parse-rem (beg end)
+  ;;   "message region or \"empty string\" if none highlighted"
+  ;;   (interactive (if (use-region-p)
+  ;;                    (list (region-beginning) (region-end))
+  ;;                  (list (point-min) (point-min))))
+  ;;   (let ((selection (buffer-substring-no-properties beg end)))
+  ;;     (if (not (= (length selection) 0))
+  ;;         (progn
+  ;;           (let ((ori (string-to-number selection)))
+  ;;             (delete-region beg end)
+  ;;             (insert
+  ;;              (number-to-string
+  ;;               ;; reserve 4 bit of float
+  ;;               (/ (fround (/ (* 10000 ori) 1.875)) 10000)
+  ;;               ))))
+  ;;       (message "empty string"))))
+
+  ;; (global-set-key (kbd "<f5>") 'parse-rem)
 
   ;; org-html styles
   (setq org-html-preamble nil)
