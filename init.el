@@ -590,6 +590,9 @@ you should place your code here."
         '((:startgroup . nil)
           ("@office" . ?w)
           ("@home" . ?h)
+          ("@travel")
+          ("@phone")
+          ("@email")
           (:endgroup . nil)
 
           (:startgroup . nil)
@@ -633,7 +636,12 @@ you should place your code here."
   ;; Todo keywords
   (setq org-todo-keywords
         (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
-                (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELED(c@/!)" "PHONE(p)" "MEETING(m)" "FIXED(f)"))))
+                (sequence "WAITING(w@/!)" "HOLD(h@/!)" "SOMEDAY" "|" "CANCELED(c@/!)" "PHONE(p)" "MEETING(m)" "FIXED(f)"))))
+
+  ;; config stuck project
+  ;; see http://www.itkeyword.com/doc/82590990520712x871/defining-unscheduled-todos-as-stuck-projects-in-emacs-org-mode
+  (setq org-stuck-projects
+        '("TODO={.+}/-DONE" nil nil "SCHEDULED:\\|DEADLINE:"))
 
   ;; Todo keywords colors
   (setq org-todo-keyword-faces
@@ -642,6 +650,7 @@ you should place your code here."
                 ("DONE" :foreground "#859900" :weight bold)
                 ("WAITING" :foreground "#cb4b16" :weight bold)
                 ("HOLD" :foreground "#b58900" :weight bold)
+                ("SOMEDAY" :foreground "#b58900" :weight bold)
                 ("CANCELED" :foreground "#859900" :weight bold)
                 ("MEETING" :foreground "#859900" :weight bold)
                 ("PHONE" :foreground "#859900" :weight bold))))
@@ -662,8 +671,18 @@ you should place your code here."
                 ("TODO" ("WAITING") ("CANCELED") ("HOLD"))
                 ("NEXT" ("WAITING") ("CANCELED") ("HOLD"))
                 ("DONE" ("WAITING") ("CANCELED") ("HOLD")))))
-  
+
   ;; org-capture settings
+  (defvar org-agenda-dir ""
+    "gtd org files location")
+
+  (defvar deft-dir ""
+    "deft org files locaiton")
+
+  (setq-default
+   org-agenda-dir "~/org"
+   deft-dir "~/org")
+
   (setq org-directory "~/org")
   (setq org-default-notes-file "~/org/inbox.org")
 
@@ -681,7 +700,9 @@ you should place your code here."
   ;; Capture templates for: TODO tasks, Notes, appointments, phone calls, meetings, and org-protocol
   ;; the %i would copy the selected text into the template
   (setq org-capture-templates
-        '(("t" "Task" entry (file+headline "~/org/inbox.org" "Tasks")
+        '(
+          ("w" "Working Task")
+          ("wt" "Task" entry (file+headline "~/org/inbox.org" "Tasks")
            "* TODO %?\n%U\n" :clock-in t :clock-resume t :empty-lines 1)
 
           ("n" "Note" entry (file+headline "~/org/inbox.org" "Notes")
@@ -734,12 +755,37 @@ you should place your code here."
 
   ;; custom agemda views
   (setq org-agenda-custom-commands
-        (quote ((" " "Agenda"
-                 ((agenda "" nil)
-                  (tags "INBOX"
-                        ((org-agenda-overriding-header "Tasks to Refile")
-                         (org-tags-match-list-sublevels nil))))
-                 nil))))
+        '(("d" "Daily Action List"
+           ((agenda "" ((org-agenda-ndays 1)
+                        (org-agenda-sorting-strategy '((agenda time-up priority-down tag-up)))
+                        (org-deadline-warning-days 0)))))
+          ("o" "At the office"
+           tags-todo "@office"
+           ((org-agenda-overriding-header "Office")
+            (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first)))
+
+          (" " "Agenda"
+          ((agenda "" nil)
+           (tags "INBOX"
+                 ((org-agenda-overriding-header "Tasks to Refile")
+                  (org-tags-match-list-sublevels nil))))
+          nil)))
+
+  (defun my-org-agenda-skip-all-siblings-but-first ()
+    "Skip all but the first non-done entry."
+    (let (should-skip-entry)
+      (unless (org-current-is-todo)
+        (setq should-skip-entry t))
+      (save-excursion
+        (while (and (not should-skip-entry) (org-goto-sibling t))
+          (when (org-current-is-todo)
+            (setq should-skip-entry t))))
+      (when should-skip-entry
+        (or (outline-next-heading)
+            (goto-char (point-max))))))
+
+  (defun org-current-is-todo ()
+    (string= "TODO" (org-get-todo-state)))
 
   ;; ====== Time Clocking ======
   ;; (global-set-key (kbd "<f9> I") 'duo/punch-in)
@@ -961,8 +1007,8 @@ you should place your code here."
   (setq org-export-with-toc nil)
 
   ;; Targets include this file and any file contributing to the agenda - up to 2 levels deep
-  (setq org-refile-targets (quote ((nil :maxlevel . 3)
-                                   (org-agenda-files :maxlevel . 3))))
+  (setq org-refile-targets (quote ((nil :maxlevel . 2)
+                                   (org-agenda-files :maxlevel . 2))))
 
   ;; Use full outline paths for refile targets - we file directly with IDO
   (setq org-refile-use-outline-path 'file)
