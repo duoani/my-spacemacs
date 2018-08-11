@@ -677,8 +677,12 @@ you should place your code here."
   ;; Capture templates for: TODO tasks, Notes, appointments, phone calls, meetings, and org-protocol
   ;; the %i would copy the selected text into the template
   (setq org-capture-templates
-        '(("t" "Task" entry (file+headline "~/org/inbox.org" "Tasks")
-           "* TODO %?\n%U\n" :clock-in t :clock-resume t :empty-lines 1)
+        '(("p" "Private Templates")
+          ("pt" "Private Task" entry (file+headline "~/org/inbox.org" "Tasks")
+           (file "~/.spacemacs.d/org-templates/todo.txt") :clock-in t :clock-resume t :empty-lines 1)
+
+          ("t" "Task" entry (file+headline "~/org/inbox.org" "Tasks")
+           "* TODO %?\n%U\n" )
 
           ("n" "Note" entry (file+headline "~/org/inbox.org" "Notes")
            "* %? \n%U\n" :clock-in t :clock-resume t :empty-lines 1)
