@@ -698,7 +698,8 @@ you should place your code here."
   ;; Todo keywords
   (setq org-todo-keywords
         (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
-                (sequence "WAITING(w@/!)" "HOLD(h@/!)" "SOMEDAY" "|" "CANCELED(c@/!)" "PHONE(p)" "MEETING(m)" "FIXED(f)"))))
+                (sequence "WAITING(w@/!)" "HOLD(h@/!)" "SOMEDAY(s)" "|" "CANCELED(c@/!)" "PHONE(p)" "MEETING(m)")
+                (sequence "BUG(b)" "|" "FIXED(f@/!)"))))
 
   ;; config stuck project
   ;; see http://www.itkeyword.com/doc/82590990520712x871/defining-unscheduled-todos-as-stuck-projects-in-emacs-org-mode
