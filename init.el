@@ -353,6 +353,74 @@ This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
 
+  ;; Location of gtd files.
+  (setq org-gtd-dir "~/org/gtd/")
+  ;; Location of the note files.
+  (setq org-note-dir "~/org/notes/")
+  ;; Scaning location of deft
+  (setq deft-directory "~/org")
+
+  (setq org-directory "~/org")
+
+  ;; location of capture templates
+  (setq org-capture-template-dir "~/.spacemacs.d/org-templates/")
+
+  ;; Capture files
+  (setq org-file-gtd-inbox (expand-file-name "inbox.org" org-gtd-dir))
+  (setq org-file-gtd-private (expand-file-name "private.org" org-gtd-dir))
+  (setq org-file-note-english (expand-file-name "english.org" org-note-dir))
+  (setq org-file-note-snippet (expand-file-name "snippet.org" org-note-dir))
+  (setq org-file-note-journal (expand-file-name "journal.org" org-note-dir))
+  (setq org-default-notes-file org-file-gtd-inbox)
+
+  ;; Agenda file list. Only displays things in GTD files.
+  (setq org-agenda-files (list org-gtd-dir))
+
+  ;; Capture templates for: TODO tasks, Notes, appointments, phone calls, meetings, and org-protocol
+  ;; the %i would copy the selected text into the template
+  (setq org-capture-templates
+        '(
+          ("t" "Task entry" entry (file org-file-gtd-inbox)
+           (file "~/.spacemacs.d/org-templates/todo.org") :clock-in t :clock-resume t :empty-lines 1)
+
+          ("n" "Quick Note" entry (file org-file-gtd-inbox)
+           (file "~/.spacemacs.d/org-templates/note.org") :clock-in t :clock-resume t :empty-lines 1)
+
+          ("e" "English Learning")
+
+          ("ew" "English Word" entry (file+headline org-file-note-english "Words")
+           (file "~/.spacemacs.d/org-templates/eng-word.org") :prepend :empty-lines 1)
+
+          ("ea" "English Abbrivation" entry (file+headline org-file-note-english "Abbrivations")
+           (file "~/.spacemacs.d/org-templates/eng-abbr.org") :prepend :empty-lines 1)
+
+          ("ep" "English Preposition Combination" entry (file+headline org-file-note-english "Preposition Combinations")
+           (file "~/.spacemacs.d/org-templates/eng-preposition.org") :prepend :empty-lines 1)
+
+          ("j" "Journal" entry (file+datetree org-file-note-journal)
+           (file "~/.spacemacs.d/org-templates/journal.org") :clock-in t :clock-resume t :empty-lines 1)
+
+          ("l" "Link entry" entry (file org-file-gtd-inbox)
+           (file "~/.spacemacs.d/org-templates/link.org") :empty-lines 1)
+
+          ("m" "Meeting" entry (file org-file-gtd-inbox)
+           (file "~/.spacemacs.d/org-templates/meeting.org") :clock-in t :clock-resume t)
+
+          ("s" "Code Snippet" entry (file+headline org-file-note-snippet "Code Snippets")
+           (file "~/.spacemacs.d/org-templates/snippet.org") :empty-lines 1)
+
+
+          ("h" "Habit" entry (file+headline org-file-gtd-private "Habits")
+           (file "~/.spacemacs.d/org-templates/habit.org"))))
+
+  ;; deft
+  (setq deft-extensions '("org"))
+  (setq deft-recursive t)
+  (setq deft-use-filename-as-title t)
+
+  ;; Temporary fix https://github.com/syl20bnr/spacemacs/issues/11152
+  (setq projectile-keymap-prefix (kbd "C-c C-p"))
+
   (defun zilongshanren//insert-org-or-md-img-link (prefix imagename)
     (if (equal (file-name-extension (buffer-file-name)) "org")
         (insert (format "[[%s][%s%s]]" imagename prefix imagename))
@@ -607,6 +675,8 @@ you should place your code here."
           ("personal" . ?P)
           ("work" . ?W)
           ("crypt" . ?R)
+          ("note" . ?n)
+          ("meeting" . ?M)
           (:endgroup)
 
           (:startgroup)
@@ -667,20 +737,6 @@ you should place your code here."
                 ("NEXT" ("WAITING") ("CANCELED") ("HOLD"))
                 ("DONE" ("WAITING") ("CANCELED") ("HOLD")))))
 
-  ;; org-capture settings
-  (defvar org-agenda-dir ""
-    "gtd org files location")
-
-  (defvar deft-dir ""
-    "deft org files locaiton")
-
-  (setq-default
-   org-agenda-dir "~/org"
-   deft-dir "~/org")
-
-  (setq org-directory "~/org")
-  (setq org-default-notes-file "~/org/inbox.org")
-
   ;; keeping the agenda fast by spanning the range to `day' by default
   (setq org-agenda-span 'day)
   ;; Overwrite the current window with the agenda
@@ -713,53 +769,8 @@ you should place your code here."
   (add-hook 'org-after-todo-state-change-hook 'bh/mark-next-parent-tasks-todo 'append)
   (add-hook 'org-clock-in-hook 'bh/mark-next-parent-tasks-todo 'append)
 
-  ;; Capture templates for: TODO tasks, Notes, appointments, phone calls, meetings, and org-protocol
-  ;; the %i would copy the selected text into the template
-  (setq org-capture-templates
-        '(
-          ("w" "Working Task")
-          ("wt" "Task" entry (file+headline "~/org/inbox.org" "Tasks")
-           "* TODO %?\n%U\n" :clock-in t :clock-resume t :empty-lines 1)
-
-          ("n" "Note" entry (file+headline "~/org/inbox.org" "Notes")
-           "* %? \n%U\n" :clock-in t :clock-resume t :empty-lines 1)
-
-          ("w" "Word" entry (file+headline "~/org/english.org" "Words")
-           "* %^{word} [%^{phonics}] \n- %?\n\nExamples:\n1. \n" :prepend :empty-lines 1)
-
-          ("a" "Abbrivation" entry (file+headline "~/org/english.org" "Abbrivations")
-           "* %^{abbr} - %^{word}\n %?\n\nExamples:\n1. \n" :prepend :empty-lines 1)
-
-          ("c" "Preposition Combination" entry (file+headline "~/org/english.org" "Preposition Combinations")
-           "* %^{word}\n %?\n\nExamples:\n1. \n" :prepend :empty-lines 1)
-
-          ("s" "Code Snippet" entry (file+headline "~/org/inbox.org" "Notes")
-           "* %?\t%^g\n#+BEGIN_SRC %^{language}\n\n#+END_SRC" :empty-lines 1)
-
-          ("l" "links" entry (file+headline "~/org/inbox.org" "Notes")
-           "* TODO [#C] %?\n  %i\n %a \n %U\n" :empty-lines 1)
-
-          ("j" "Journal" entry (file+datetree "~/org/journal.org")
-           "* %?\n%U\n\n" :clock-in t :clock-resume t :empty-lines 1)
-
-          ("o" "Oneway Task" entry (file+headline "~/org/oneway/oneway.org" "Tasks")
-           "* TODO %?\n%U\n" :clock-in t :clock-resume t :empty-lines 1)
-
-          ("m" "Meeting" entry (file+datetree "~/org/inbox.org")
-           "* MEETING %? :MEETING:\n%U\nMinutes\n1. " :clock-in t :clock-resume t :empty-lines 1)
-
-          ("p" "Phone call" entry (file+datetree "~/org/journal.org")
-           "* PHONE %? :PHONE:\n%U\n" :clock-in t :clock-resume t :empty-lines 1)
-
-          ("h" "Habit" entry (file+datetree "~/org/inbox.org" "Habits")
-           "* NEXT %?\n%U\n%a\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n")))
-
   ;; hide weeky
   ;; (setq org-time-stamp-custom-formats '("<%Y-%m-%d>" . "<%Y-%m-%d %H:%M>"))
-
-  ;; org-agenda-files
-  (setq org-agenda-files '("~/org/" "~/org/notes/" "~/org/oneway/"))
-
 
   ;; ====== Custom Agenda Views ======
 
@@ -1316,12 +1327,6 @@ Skip project and sub-project tasks, habits, and loose non-project tasks."
     (not (member (nth 2 (org-heading-components)) org-done-keywords)))
 
   (setq org-refile-target-verify-function 'bh/verify-refile-target)
-
-  ;; deft
-  (setq deft-extensions '("org"))
-  (setq deft-directory "~/org")
-  (setq deft-recursive t)
-  (setq deft-use-filename-as-title t)
 
   ;; org-export
   (setq org-export-backends '(ascii html md))

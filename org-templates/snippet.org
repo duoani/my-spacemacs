@@ -1,0 +1,4 @@
+* %? %^g
+#+BEGIN_SRC %^{Language|emacs-lisp|javascript|css|scss|html|java}
+%?
+#+END_SRC

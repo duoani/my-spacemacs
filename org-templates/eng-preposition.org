@@ -1,0 +1,5 @@
+* %^{Preposition}
+1. %^{It means}
+   #+BEGIN_EXAMPLE
+   %?
+   #+END_EXAMPLE
