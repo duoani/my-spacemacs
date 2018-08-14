@@ -79,7 +79,6 @@ values."
    ;; configuration in `dotspacemacs/user-config'.
    dotspacemacs-additional-packages '(vue-mode
                                       lispy
-                                      org-habit
                                       xref-js2
                                       helm-org-rifle)
    ;; A list of packages that cannot be updated.
@@ -513,9 +512,16 @@ you should place your code here."
   ;; emmet-mode
   (add-hook 'emmet-mode-hook (lambda () (setq emmet-indentation 2)))
 
+  ;; (add-to-list 'org-modules "org-habit")
+  (setq org-modules (quote (org-id
+                            org-habit
+                            org-bibtex
+                            org-docview
+                            org-info
+                            org-crypt)))
+
   (defun my-org-mode-hook ()
     "Hooks for org-mode."
-    (add-to-list 'org-modules "org-habit")
     (define-key org-mode-map [M-return] 'org-meta-return))
   (add-hook 'org-mode-hook 'my-org-mode-hook)
   ;; (define-key org-mode-map [M-return] 'org-meta-return)
@@ -543,6 +549,8 @@ you should place your code here."
   (setq org-log-into-drawer t)
   ;; allows changing todo states with S-left and S-right skipping all of the normal processing when entering or leaving a todo state. This cycles through the todo states but skips setting timestamps and entering notes which is very convenient when all you want to do is fix up the status of an entry.
   (setq org-treat-S-cursor-todo-selection-as-state-change nil)
+  ;; Create unique IDs for tasks when linking
+  (setq org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id)
 
   ;; Hiding markup elements in org-mode
   ;; (setq org-hide-emphasis-markers nil)
@@ -598,6 +606,7 @@ you should place your code here."
           (:startgroup)
           ("personal" . ?P)
           ("work" . ?W)
+          ("crypt" . ?R)
           (:endgroup)
 
           (:startgroup)
@@ -674,7 +683,10 @@ you should place your code here."
 
   ;; keeping the agenda fast by spanning the range to `day' by default
   (setq org-agenda-span 'day)
-
+  ;; Overwrite the current window with the agenda
+  (setq org-agenda-window-setup 'current-window)
+  ;; delete ids when cloning
+  (setq org-clone-delete-id t)
   ;; Count all TODO entries in the subtree
   ;; see https://orgmode.org/org.html#Breaking-down-tasks
   (setq org-hierarchical-todo-statistics nil)
@@ -685,6 +697,21 @@ you should place your code here."
       (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
 
   (add-hook 'org-after-todo-statistics-hook 'org-summary-todo)
+
+  ;; Copy from http://doc.norang.ca/org-mode.html#NextTasks
+  (defun bh/mark-next-parent-tasks-todo ()
+    "Visit each parent task and change NEXT states to TODO"
+    (let ((mystate (or (and (fboundp 'org-state)
+                            state)
+                       (nth 2 (org-heading-components)))))
+      (when mystate
+        (save-excursion
+          (while (org-up-heading-safe)
+            (when (member (nth 2 (org-heading-components)) (list "NEXT"))
+              (org-todo "TODO")))))))
+
+  (add-hook 'org-after-todo-state-change-hook 'bh/mark-next-parent-tasks-todo 'append)
+  (add-hook 'org-clock-in-hook 'bh/mark-next-parent-tasks-todo 'append)
 
   ;; Capture templates for: TODO tasks, Notes, appointments, phone calls, meetings, and org-protocol
   ;; the %i would copy the selected text into the template
@@ -838,6 +865,10 @@ you should place your code here."
   (global-set-key (kbd "<f9> I") 'bh/punch-in)
   (global-set-key (kbd "<f9> O") 'bh/punch-out)
   (global-set-key (kbd "<f9> SPC") 'bh/clock-in-last-task)
+  ;; Bookmark handling
+  ;;
+  (global-set-key (kbd "<C-f5>") '(lambda () (interactive) (bookmark-set "SAVED")))
+  (global-set-key (kbd "<f5>") '(lambda () (interactive) (bookmark-jump "SAVED")))
   ;; Separate drawers for clocking and logs
   (setq org-drawers (quote ("PROPERTIES" "LOGBOOK")))
   ;; Save clock data and notes in the LOGBOOK drawer
@@ -1301,6 +1332,12 @@ Skip project and sub-project tasks, habits, and loose non-project tasks."
               (delete-trailing-whitespace)
               nil))
 
+  ;; Encrypt all entries before saving
+  ;; (org-crypt-use-before-save-magic)
+  ;; (setq org-tags-exclude-from-inheritance (quote ("crypt")))
+  ;; ;; GPG key to use for encryption
+  ;; (setq org-crypt-key "AABBCC")
+
 ;;; add-node-modules-path.el --- Add node_modules to your exec-path
 
   ;; Copyright (C) 2016 Neri Marschik
@@ -1424,6 +1461,9 @@ Skip project and sub-project tasks, habits, and loose non-project tasks."
   ;;       (message "empty string"))))
 
   ;; (global-set-key (kbd "<f5>") 'parse-rem)
+
+  ;; disable Subscripts and Superscripts
+  (setq org-use-sub-superscripts nil)
 
   ;; org-html styles
   (setq org-html-preamble nil)
