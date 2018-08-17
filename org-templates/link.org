@@ -1,4 +1,4 @@
-* TODO [#C] %?
+* UNREAD [#C] %?
 %i 
 %a
 %U
