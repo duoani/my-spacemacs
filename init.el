@@ -376,6 +376,9 @@ you should place your code here."
   ;; Agenda file list. Only displays things in GTD files.
   (setq org-agenda-files (list org-gtd-dir))
 
+  ;; My notes files list.
+  (setq org-notes-files (directory-files org-note-dir t))
+
   ;; Capture templates for: TODO tasks, Notes, appointments, phone calls, meetings, and org-protocol
   ;; the %i would copy the selected text into the template
   (setq org-capture-templates
@@ -675,28 +678,28 @@ you should place your code here."
   ;;                       ("SysVideoAdmin")
   ;;                       (:endgrouptag)
   ;;                       ))
-  (setq org-tag-alist
+  (setq org-tag-persistent-alist
         '((:startgroup)
           ("@office" . ?o)
           ("@home" . ?h)
           ("@errand" . ?e)
           (:endgroup)
 
-          (:startgroup)
+          (:startgrouptag)
           ("personal" . ?P)
           ("work" . ?W)
           ("crypt" . ?R)
           ("note" . ?n)
           ("meeting" . ?M)
-          (:endgroup)
+          (:endgrouptag)
 
-          (:startgroup)
+          (:startgrouptag)
           ("git" . ?G)
           ("nodejs" . ?N)
           ("javascript" . ?J)
           ("css" . ?C)
           ("html" . ?H)
-          (:endgroup)
+          (:endgrouptag)
 
           (:startgroup)
           ("emacs" . ?E)
@@ -1313,7 +1316,8 @@ Skip project and sub-project tasks, habits, and loose non-project tasks."
 
   ;; Targets include this file and any file contributing to the agenda - up to 2 levels deep
   (setq org-refile-targets (quote ((nil :maxlevel . 1)
-                                   (org-agenda-files :maxlevel . 1))))
+                                   (org-agenda-files :maxlevel . 1)
+                                   (org-notes-files :maxlevel . 9))))
 
   ;; Use full outline paths for refile targets - we file directly with IDO
   (setq org-refile-use-outline-path 'file)
