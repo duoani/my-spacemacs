@@ -433,7 +433,8 @@ you should place your code here."
   (setq deft-use-filename-as-title t)
 
   ;; Temporary fix https://github.com/syl20bnr/spacemacs/issues/11152
-  (setq projectile-keymap-prefix (kbd "C-c C-p"))
+  ;; Update: comment this form because bug is fixed through updating the packages.
+  ;; (setq projectile-keymap-prefix (kbd "C-c C-p"))
 
   (defun zilongshanren//insert-org-or-md-img-link (prefix imagename)
     (if (equal (file-name-extension (buffer-file-name)) "org")
@@ -713,7 +714,7 @@ you should place your code here."
   (setq org-todo-keywords
         (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
                 (sequence "WAITING(w@/!)" "HOLD(h@/!)" "SOMEDAY(s)" "|" "CANCELED(c@/!)" "PHONE(p)" "MEETING(m)")
-                (sequence "BUG(b)" "|" "FIXED(f@/!)")
+                (sequence "FIXME(b)" "|" "FIXED(f@/!)")
                 (sequence "UNREAD(r)" "|" "READ(R)"))))
 
   ;; config stuck project
@@ -731,6 +732,7 @@ you should place your code here."
                 ("DONE" :foreground "#859900" :weight bold)
                 ("WAITING" :foreground "#cb4b16" :weight bold)
                 ("UNREAD" :foreground "#cb4b16" :weight bold)
+                ("FIXME" :foreground "#cb4b16" :weight bold)
                 ("HOLD" :foreground "#b58900" :weight bold)
                 ("SOMEDAY" :foreground "#b58900" :weight bold)
                 ("CANCELED" :foreground "#859900" :weight bold)
@@ -750,6 +752,7 @@ you should place your code here."
         (quote (("CANCELED" ("CANCELED" . t))
                 ("WAITING" ("WAITING" . t))
                 ("HOLD" ("WAITING") ("HOLD" . t))
+                ("SOMEDAY" ("WAITING") ("HOLD") ("CANCELED") ("SOMEDAY" . t))
                 (done ("WAITING") ("HOLD"))
                 ("TODO" ("WAITING") ("CANCELED") ("HOLD"))
                 ("NEXT" ("WAITING") ("CANCELED") ("HOLD"))
@@ -819,7 +822,7 @@ you should place your code here."
                         (org-agenda-skip-function 'bh/skip-non-stuck-projects)
                         (org-agenda-sorting-strategy
                          '(category-keep))))
-            (tags-todo "-HOLD-CANCELLED/!"
+            (tags-todo "-HOLD-SOMEDAY-CANCELLED/!"
                        ((org-agenda-overriding-header "Projects")
                         (org-agenda-skip-function 'bh/skip-non-projects)
                         (org-tags-match-list-sublevels 'indented)
@@ -837,7 +840,7 @@ you should place your code here."
                         (org-agenda-todo-ignore-with-date bh/hide-scheduled-and-waiting-next-tasks)
                         (org-agenda-sorting-strategy
                          '(todo-state-down effort-up category-keep))))
-            (tags-todo "-REFILE-CANCELLED-WAITING-HOLD/!"
+            (tags-todo "-INBOX-CANCELLED-WAITING-HOLD-SOMEDAY/!"
                        ((org-agenda-overriding-header (concat "Project Subtasks"
                                                               (if bh/hide-scheduled-and-waiting-next-tasks
                                                                   ""
@@ -848,7 +851,7 @@ you should place your code here."
                         (org-agenda-todo-ignore-with-date bh/hide-scheduled-and-waiting-next-tasks)
                         (org-agenda-sorting-strategy
                          '(category-keep))))
-            (tags-todo "-REFILE-CANCELLED-WAITING-HOLD/!"
+            (tags-todo "-INBOX-CANCELLED-WAITING-HOLD-SOMEDAY/!"
                        ((org-agenda-overriding-header (concat "Standalone Tasks"
                                                               (if bh/hide-scheduled-and-waiting-next-tasks
                                                                   ""
@@ -868,7 +871,16 @@ you should place your code here."
                         (org-tags-match-list-sublevels nil)
                         (org-agenda-todo-ignore-scheduled bh/hide-scheduled-and-waiting-next-tasks)
                         (org-agenda-todo-ignore-deadlines bh/hide-scheduled-and-waiting-next-tasks)))
-            (tags "-REFILE/"
+            (tags-todo "+SOMEDAY/!"
+                       ((org-agenda-overriding-header (concat "Someday Maybe Tasks"
+                                                              (if bh/hide-scheduled-and-waiting-next-tasks
+                                                                  ""
+                                                                " (including WAITING and SCHEDULED tasks)")))
+                        (org-agenda-skip-function 'bh/skip-non-tasks)
+                        (org-tags-match-list-sublevels nil)
+                        (org-agenda-todo-ignore-scheduled bh/hide-scheduled-and-waiting-next-tasks)
+                        (org-agenda-todo-ignore-deadlines bh/hide-scheduled-and-waiting-next-tasks)))
+            (tags "-INBOX/"
                   ((org-agenda-overriding-header "Tasks to Archive")
                    (org-agenda-skip-function 'bh/skip-non-archivable-tasks)
                    (org-tags-match-list-sublevels nil))))
@@ -1326,7 +1338,7 @@ Skip project and sub-project tasks, habits, and loose non-project tasks."
   (setq org-outline-path-complete-in-steps nil)
 
   ;; Allow refile to create parent tasks with confirmation
-  (setq org-refile-allow-creating-parent-nodes (quote confirm))
+  (setq org-refile-allow-creating-parent-nodes t) ;; (quote confirm)
 
   ;; Use IDO for both buffer and file completion and ido-everywhere to t
   (setq org-completion-use-ido t)
