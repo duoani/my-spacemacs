@@ -1,4 +1,3 @@
 * UNREAD [#C] %?
 %i 
-%a
 %U
