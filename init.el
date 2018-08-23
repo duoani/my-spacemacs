@@ -353,6 +353,89 @@ This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
 
+  ;; Location of gtd files.
+  (setq org-gtd-dir "~/org/gtd/")
+  ;; Location of the note files.
+  (setq org-note-dir "~/org/notes/")
+  ;; Scaning location of deft
+  (setq deft-directory "~/org")
+
+  (setq org-directory "~/org")
+
+  ;; location of capture templates
+  (setq org-capture-template-dir "~/.spacemacs.d/org-templates/")
+
+  ;; Capture files
+  (setq org-file-gtd-inbox (expand-file-name "inbox.org" org-gtd-dir))
+  (setq org-file-gtd-private (expand-file-name "private.org" org-gtd-dir))
+  (setq org-file-note-english (expand-file-name "english.org" org-note-dir))
+  (setq org-file-note-snippet (expand-file-name "snippet.org" org-note-dir))
+  (setq org-file-note-journal (expand-file-name "journal.org" org-note-dir))
+  (setq org-default-notes-file org-file-gtd-inbox)
+
+  ;; Agenda file list. Only displays things in GTD files.
+  (setq org-agenda-files (list org-gtd-dir))
+
+  ;; My notes files list.
+  (setq org-notes-files (directory-files org-note-dir t))
+
+  ;; Capture templates for: TODO tasks, Notes, appointments, phone calls, meetings, and org-protocol
+  ;; the %i would copy the selected text into the template
+  (setq org-capture-templates
+        '(
+          ("t" "Task entry" entry (file org-file-gtd-inbox)
+           (file "~/.spacemacs.d/org-templates/todo.org") :clock-in t :clock-resume t :empty-lines 1)
+
+          ("n" "Quick Note" entry (file org-file-gtd-inbox)
+           (file "~/.spacemacs.d/org-templates/note.org") :clock-in t :clock-resume t :empty-lines 1)
+
+          ("e" "English Learning")
+
+          ("ew" "English Word" entry (file+headline org-file-note-english "Words")
+           (file "~/.spacemacs.d/org-templates/eng-word.org") :prepend :empty-lines 1)
+
+          ("ea" "English Abbrivation" entry (file+headline org-file-note-english "Abbrivations")
+           (file "~/.spacemacs.d/org-templates/eng-abbr.org") :prepend :empty-lines 1)
+
+          ("ep" "English Preposition Combination" entry (file+headline org-file-note-english "Preposition Combinations")
+           (file "~/.spacemacs.d/org-templates/eng-preposition.org") :prepend :empty-lines 1)
+
+          ("j" "Journal" entry (file+datetree org-file-note-journal)
+           "* %?" :clock-in t :clock-resume t :empty-lines 1)
+
+          ("l" "Link entry" entry (file org-file-gtd-inbox)
+           (file "~/.spacemacs.d/org-templates/link.org") :empty-lines 1)
+
+          ("m" "Meeting" entry (file org-file-gtd-inbox)
+           (file "~/.spacemacs.d/org-templates/meeting.org") :clock-in t :clock-resume t)
+
+          ("s" "Code Snippet" entry (file org-file-gtd-inbox)
+           (file "~/.spacemacs.d/org-templates/snippet.org") :empty-lines 1)
+
+
+          ("h" "Habit" entry (file+headline org-file-gtd-private "Habits")
+           (file "~/.spacemacs.d/org-templates/habit.org"))))
+
+  (defun bh/org-auto-exclude-function (tag)
+    "Automatic task exclusion in the agenda with / RET"
+    (and (cond
+          ((string= tag "HOLD")
+           t)
+          ((string= tag "FARM")
+           t))
+         (concat "-" tag)))
+
+  (setq org-agenda-auto-exclude-function 'bh/org-auto-exclude-function)
+
+  ;; deft
+  (setq deft-extensions '("org"))
+  (setq deft-recursive t)
+  (setq deft-use-filename-as-title t)
+
+  ;; Temporary fix https://github.com/syl20bnr/spacemacs/issues/11152
+  ;; Update: comment this form because bug is fixed through updating the packages.
+  ;; (setq projectile-keymap-prefix (kbd "C-c C-p"))
+
   (defun zilongshanren//insert-org-or-md-img-link (prefix imagename)
     (if (equal (file-name-extension (buffer-file-name)) "org")
         (insert (format "[[%s][%s%s]]" imagename prefix imagename))
@@ -512,21 +595,32 @@ you should place your code here."
   ;; emmet-mode
   (add-hook 'emmet-mode-hook (lambda () (setq emmet-indentation 2)))
 
+  ;; (add-to-list 'org-modules "org-habit")
+  (setq org-modules (quote (org-id
+                            org-habit
+                            org-bibtex
+                            org-docview
+                            org-info
+                            org-crypt)))
+
   (defun my-org-mode-hook ()
     "Hooks for org-mode."
     (define-key org-mode-map [M-return] 'org-meta-return))
   (add-hook 'org-mode-hook 'my-org-mode-hook)
-  ;; (define-key org-mode-map [M-return] 'org-meta-return)
 
+  ;; rebind the default key-bindings "/" of which evilified-mode shadoweded in org-agenda-mode.
+  ;; see https://stackoverflow.com/questions/41314759/rebind-keys-in-spacemacs-for-neotree-buffer/41351544#41351544
+  (with-eval-after-load 'org-agenda
+    (evil-define-key 'evilified org-agenda-mode-map (kbd "/") 'org-agenda-filter-by-tag))
 
   ;; Make org-mode friendly for Chinese chars.
   (setq org-emphasis-regexp-components
         '(
           "- “：，。、  \t('\"{"        ;pre
           "- ”：，。、 \t.,:!?;'\")}\\" ;post
-          " \t\r\n,\"'"                  ;border *forbidden*
-          "."                            ;body-regexp
-          1                              ; newline
+          " \t\r\n,\"'"                 ;border *forbidden*
+          "."                           ;body-regexp
+          1                             ; newline
           ))
 
   ;; Register
@@ -541,6 +635,8 @@ you should place your code here."
   (setq org-log-into-drawer t)
   ;; allows changing todo states with S-left and S-right skipping all of the normal processing when entering or leaving a todo state. This cycles through the todo states but skips setting timestamps and entering notes which is very convenient when all you want to do is fix up the status of an entry.
   (setq org-treat-S-cursor-todo-selection-as-state-change nil)
+  ;; Create unique IDs for tasks when linking
+  (setq org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id)
 
   ;; Hiding markup elements in org-mode
   ;; (setq org-hide-emphasis-markers nil)
@@ -561,6 +657,14 @@ you should place your code here."
   ;; Goto currently clockly items
   (global-set-key (kbd "<f11>") 'org-clock-goto)
 
+  (defun org-auto-tag ()
+    (interactive)
+    (let ((alltags (append org-tag-persistent-alist org-tag-alist))
+          (headline-words (split-string (downcase (org-get-heading t t)))))
+      (mapcar (lambda (word)
+                (if (assoc word alltags)
+                    (org-toggle-tag word 'on)))
+              headline-words)))
   ;; (setq org-tag-alist '((:startgrouptag)
   ;;                       (:grouptags)
   ;;                       ("@home" . ?h)
@@ -578,62 +682,56 @@ you should place your code here."
   ;;                       ("SysVideoAdmin")
   ;;                       (:endgrouptag)
   ;;                       ))
-  (setq org-tag-alist '((:startgroup . nil)
-                        ("@office" . ?w)
-                        ("@home" . ?h)
-                        (:endgroup . nil)
+  (setq org-tag-persistent-alist
+        '((:startgroup)
+          ("@office" . ?o)
+          ("@home" . ?h)
+          ("@errand" . ?e)
+          (:endgroup)
 
-                        ("Video" . nil)
-                        ("VideoAdmin" . nil)
-                        ("Developer" . nil)
-                        ("DeveloperAdmin" . nil)
-                        ("WebSite" . nil)
-                        ("WorkOrder" . nil)
-                        ("Analysis" . nil)
+          (:startgrouptag)
+          ("personal" . ?P)
+          ("work" . ?W)
+          ("crypt" . ?R)
+          ("note" . ?n)
+          ("meeting" . ?M)
+          (:endgrouptag)
 
-                        ("Git" . nil)
+          ;; note
+          (:startgrouptag)
+          ("note" . ?n)
+          (:grouptags)
+          ("git" . ?G)
+          ("nodejs" . ?N)
+          ("javascript" . ?J)
+          ("css" . ?C)
+          ("html" . ?H)
+          ("emacs" . ?E)
+          (:endgrouptag)
 
-                        (:startgroup . nil)
-                        ("NodeJS" . nil)
-                        (:grouptags)
-                        ("Webpack")
-                        ("Express")
-                        (:endgroup . nil)
-
-                        (:startgroup . nil)
-                        ("Javascript" . nil)
-                        (:grouptags)
-                        ("ES5")
-                        ("ES6")
-                        (:endgroup . nil)
-
-                        (:startgroup . nil)
-                        ("CSS" . nil)
-                        (:grouptags)
-                        ("CSS3")
-                        (:endgroup . nil)
-
-                        (:startgroup . nil)
-                        ("HTML" . nil)
-                        (:grouptags)
-                        ("HTML5")
-                        (:endgroup . nil)
-
-                        ("WebApp")
-
-                        (:startgroup . nil)
-                        ("Emacs" . nil)
-                        (:grouptags)
-                        ("Spacemacs")
-                        ("Lisp")
-                        (:endgroup . nil)
-
-                        ))
+          ;; note>emacs
+          (:startgrouptag)
+          ("emacs" . ?E)
+          (:grouptags)
+          ("spacemacs" . ?S)
+          ("lisp" . ?L)
+          (:endgrouptag)
+          ))
 
   ;; Todo keywords
   (setq org-todo-keywords
         (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
-                (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELED(c@/!)" "PHONE(p)" "MEETING(m)" "FIXED(f)"))))
+                (sequence "WAITING(w@/!)" "HOLD(h@/!)" "SOMEDAY(s)" "|" "CANCELED(c@/!)" "PHONE(p)" "MEETING(m)")
+                (sequence "FIXME(b)" "|" "FIXED(f@/!)")
+                (sequence "UNREAD(r)" "|" "READ(R)"))))
+
+  ;; config stuck project
+  ;; see http://www.itkeyword.com/doc/82590990520712x871/defining-unscheduled-todos-as-stuck-projects-in-emacs-org-mode
+  ;; (setq org-stuck-projects
+  ;;       '("TODO={.+}/-DONE" nil nil "SCHEDULED:\\|DEADLINE:"))
+
+  ;; us bh's stuck project defination
+  (setq org-stuck-projects (quote ("" nil nil "")))
 
   ;; Todo keywords colors
   (setq org-todo-keyword-faces
@@ -641,8 +739,12 @@ you should place your code here."
                 ("NEXT" :foreground "#d33682" :weight bold)
                 ("DONE" :foreground "#859900" :weight bold)
                 ("WAITING" :foreground "#cb4b16" :weight bold)
+                ("UNREAD" :foreground "#cb4b16" :weight bold)
+                ("FIXME" :foreground "#cb4b16" :weight bold)
                 ("HOLD" :foreground "#b58900" :weight bold)
+                ("SOMEDAY" :foreground "#b58900" :weight bold)
                 ("CANCELED" :foreground "#859900" :weight bold)
+                ("READ" :foreground "#859900" :weight bold)
                 ("MEETING" :foreground "#859900" :weight bold)
                 ("PHONE" :foreground "#859900" :weight bold))))
 
@@ -658,11 +760,22 @@ you should place your code here."
         (quote (("CANCELED" ("CANCELED" . t))
                 ("WAITING" ("WAITING" . t))
                 ("HOLD" ("WAITING") ("HOLD" . t))
+                ("SOMEDAY" ("WAITING") ("HOLD") ("CANCELED") ("SOMEDAY" . t))
                 (done ("WAITING") ("HOLD"))
                 ("TODO" ("WAITING") ("CANCELED") ("HOLD"))
                 ("NEXT" ("WAITING") ("CANCELED") ("HOLD"))
                 ("DONE" ("WAITING") ("CANCELED") ("HOLD")))))
 
+  ;; keeping the agenda fast by spanning the range to `day' by default
+  (setq org-agenda-span 'day)
+  ;; Overwrite the current window with the agenda
+  (setq org-agenda-window-setup 'current-window)
+  ;; delete ids when cloning
+  (setq org-clone-delete-id t)
+  ;; Count all TODO entries in the subtree
+  ;; see https://orgmode.org/org.html#Breaking-down-tasks
+  (setq org-hierarchical-todo-statistics nil)
+  ;; Copy from: https://orgmode.org/org.html#Breaking-down-tasks
   (defun org-summary-todo (n-done n-not-done)
     "Switch entry to DONE when all subentries are done, to TODO otherwise. Parent entry must be added a [%] or [/] tag to enable statistics."
     (let (org-log-done org-log-states)  ; turn off logging
@@ -670,59 +783,23 @@ you should place your code here."
 
   (add-hook 'org-after-todo-statistics-hook 'org-summary-todo)
 
-  ;; org-capture settings
-  (setq org-directory "~/org")
-  (setq org-default-notes-file "~/org/inbox.org")
+  ;; Copy from http://doc.norang.ca/org-mode.html#NextTasks
+  (defun bh/mark-next-parent-tasks-todo ()
+    "Visit each parent task and change NEXT states to TODO"
+    (let ((mystate (or (and (fboundp 'org-state)
+                            state)
+                       (nth 2 (org-heading-components)))))
+      (when mystate
+        (save-excursion
+          (while (org-up-heading-safe)
+            (when (member (nth 2 (org-heading-components)) (list "NEXT"))
+              (org-todo "TODO")))))))
 
-  ;; Capture templates for: TODO tasks, Notes, appointments, phone calls, meetings, and org-protocol
-  ;; the %i would copy the selected text into the template
-  (setq org-capture-templates
-        '(("p" "Private Templates")
-          ("pt" "Private Task" entry (file+headline "~/org/inbox.org" "Tasks")
-           (file "~/.spacemacs.d/org-templates/todo.txt") :clock-in t :clock-resume t :empty-lines 1)
-
-          ("t" "Task" entry (file+headline "~/org/inbox.org" "Tasks")
-           "* TODO %?\n%U\n" )
-
-          ("n" "Note" entry (file+headline "~/org/inbox.org" "Notes")
-           "* %? \n%U\n" :clock-in t :clock-resume t :empty-lines 1)
-
-          ("w" "Word" entry (file+headline "~/org/english.org" "Words")
-           "* %^{word} [%^{phonics}] \n- %?\n\nExamples:\n1. \n" :prepend :empty-lines 1)
-
-          ("a" "Abbrivation" entry (file+headline "~/org/english.org" "Abbrivations")
-           "* %^{abbr} - %^{word}\n %?\n\nExamples:\n1. \n" :prepend :empty-lines 1)
-
-          ("c" "Preposition Combination" entry (file+headline "~/org/english.org" "Preposition Combinations")
-           "* %^{word}\n %?\n\nExamples:\n1. \n" :prepend :empty-lines 1)
-
-          ("s" "Code Snippet" entry (file+headline "~/org/inbox.org" "Notes")
-           "* %?\t%^g\n#+BEGIN_SRC %^{language}\n\n#+END_SRC" :empty-lines 1)
-
-          ("l" "links" entry (file+headline "~/org/inbox.org" "Notes")
-           "* TODO [#C] %?\n  %i\n %a \n %U\n" :empty-lines 1)
-
-          ("j" "Journal" entry (file+datetree "~/org/journal.org")
-           "* %?\n%U\n\n" :clock-in t :clock-resume t :empty-lines 1)
-
-          ("o" "Oneway Task" entry (file+headline "~/org/oneway/oneway.org" "Tasks")
-           "* TODO %?\n%U\n" :clock-in t :clock-resume t :empty-lines 1)
-
-          ("m" "Meeting" entry (file+datetree "~/org/inbox.org")
-           "* MEETING %? :MEETING:\n%U\nMinutes\n1. " :clock-in t :clock-resume t :empty-lines 1)
-
-          ("p" "Phone call" entry (file+datetree "~/org/journal.org")
-           "* PHONE %? :PHONE:\n%U\n" :clock-in t :clock-resume t :empty-lines 1)
-
-          ("h" "Habit" entry (file+datetree "~/org/inbox.org" "Habits")
-           "* NEXT %?\n%U\n%a\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n")))
+  (add-hook 'org-after-todo-state-change-hook 'bh/mark-next-parent-tasks-todo 'append)
+  (add-hook 'org-clock-in-hook 'bh/mark-next-parent-tasks-todo 'append)
 
   ;; hide weeky
   ;; (setq org-time-stamp-custom-formats '("<%Y-%m-%d>" . "<%Y-%m-%d %H:%M>"))
-
-  ;; org-agenda-files
-  (setq org-agenda-files '("~/org/" "~/org/notes/" "~/org/oneway/"))
-
 
   ;; ====== Custom Agenda Views ======
 
@@ -732,19 +809,119 @@ you should place your code here."
   ;; Compact the block agenda view
   (setq org-agenda-compact-blocks t)
 
+  ;; Enable persistent filters with the following variable
+  ;; see http://doc.norang.ca/org-mode.html#AgendaPersistentFilters
+  (setq org-agenda-persistent-filter t)
+
   ;; custom agemda views
   (setq org-agenda-custom-commands
-        (quote ((" " "Agenda"
-                 ((agenda "" nil)
-                  (tags "INBOX"
-                        ((org-agenda-overriding-header "Tasks to Refile")
-                         (org-tags-match-list-sublevels nil))))
-                 nil))))
+        '(("d" "Daily Action List"
+           ((agenda "" ((org-agenda-ndays 1)
+                        (org-agenda-sorting-strategy '((agenda time-up priority-down tag-up)))
+                        (org-deadline-warning-days 0)))))
+          ("o" "At the office"
+           tags-todo "@office"
+           ((org-agenda-overriding-header "Office")
+            (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first)))
+
+          (" " "Agenda"
+           ((agenda "" nil)
+            (tags "INBOX"
+                  ((org-agenda-overriding-header "Tasks to Refile")
+                   (org-tags-match-list-sublevels nil)))
+            (tags-todo "-CANCELLED/!"
+                       ((org-agenda-overriding-header "Stuck Projects")
+                        (org-agenda-skip-function 'bh/skip-non-stuck-projects)
+                        (org-agenda-sorting-strategy
+                         '(category-keep))))
+            (tags-todo "-HOLD-SOMEDAY-CANCELLED/!"
+                       ((org-agenda-overriding-header "Projects")
+                        (org-agenda-skip-function 'bh/skip-non-projects)
+                        (org-tags-match-list-sublevels 'indented)
+                        (org-agenda-sorting-strategy
+                         '(category-keep))))
+            (tags-todo "-CANCELLED/!NEXT"
+                       ((org-agenda-overriding-header (concat "Project Next Tasks"
+                                                              (if bh/hide-scheduled-and-waiting-next-tasks
+                                                                  ""
+                                                                " (including WAITING and SCHEDULED tasks)")))
+                        (org-agenda-skip-function 'bh/skip-projects-and-habits-and-single-tasks)
+                        (org-tags-match-list-sublevels t)
+                        (org-agenda-todo-ignore-scheduled bh/hide-scheduled-and-waiting-next-tasks)
+                        (org-agenda-todo-ignore-deadlines bh/hide-scheduled-and-waiting-next-tasks)
+                        (org-agenda-todo-ignore-with-date bh/hide-scheduled-and-waiting-next-tasks)
+                        (org-agenda-sorting-strategy
+                         '(todo-state-down effort-up category-keep))))
+            (tags-todo "-INBOX-CANCELLED-WAITING-HOLD-SOMEDAY/!"
+                       ((org-agenda-overriding-header (concat "Project Subtasks"
+                                                              (if bh/hide-scheduled-and-waiting-next-tasks
+                                                                  ""
+                                                                " (including WAITING and SCHEDULED tasks)")))
+                        (org-agenda-skip-function 'bh/skip-non-project-tasks)
+                        (org-agenda-todo-ignore-scheduled bh/hide-scheduled-and-waiting-next-tasks)
+                        (org-agenda-todo-ignore-deadlines bh/hide-scheduled-and-waiting-next-tasks)
+                        (org-agenda-todo-ignore-with-date bh/hide-scheduled-and-waiting-next-tasks)
+                        (org-agenda-sorting-strategy
+                         '(category-keep))))
+            (tags-todo "-INBOX-CANCELLED-WAITING-HOLD-SOMEDAY/!"
+                       ((org-agenda-overriding-header (concat "Standalone Tasks"
+                                                              (if bh/hide-scheduled-and-waiting-next-tasks
+                                                                  ""
+                                                                " (including WAITING and SCHEDULED tasks)")))
+                        (org-agenda-skip-function 'bh/skip-project-tasks)
+                        (org-agenda-todo-ignore-scheduled bh/hide-scheduled-and-waiting-next-tasks)
+                        (org-agenda-todo-ignore-deadlines bh/hide-scheduled-and-waiting-next-tasks)
+                        (org-agenda-todo-ignore-with-date bh/hide-scheduled-and-waiting-next-tasks)
+                        (org-agenda-sorting-strategy
+                         '(category-keep))))
+            (tags-todo "-CANCELLED+WAITING|HOLD/!"
+                       ((org-agenda-overriding-header (concat "Waiting and Postponed Tasks"
+                                                              (if bh/hide-scheduled-and-waiting-next-tasks
+                                                                  ""
+                                                                " (including WAITING and SCHEDULED tasks)")))
+                        (org-agenda-skip-function 'bh/skip-non-tasks)
+                        (org-tags-match-list-sublevels nil)
+                        (org-agenda-todo-ignore-scheduled bh/hide-scheduled-and-waiting-next-tasks)
+                        (org-agenda-todo-ignore-deadlines bh/hide-scheduled-and-waiting-next-tasks)))
+            (tags-todo "+SOMEDAY/!"
+                       ((org-agenda-overriding-header (concat "Someday Maybe Tasks"
+                                                              (if bh/hide-scheduled-and-waiting-next-tasks
+                                                                  ""
+                                                                " (including WAITING and SCHEDULED tasks)")))
+                        (org-agenda-skip-function 'bh/skip-non-tasks)
+                        (org-tags-match-list-sublevels nil)
+                        (org-agenda-todo-ignore-scheduled bh/hide-scheduled-and-waiting-next-tasks)
+                        (org-agenda-todo-ignore-deadlines bh/hide-scheduled-and-waiting-next-tasks)))
+            (tags "-INBOX/"
+                  ((org-agenda-overriding-header "Tasks to Archive")
+                   (org-agenda-skip-function 'bh/skip-non-archivable-tasks)
+                   (org-tags-match-list-sublevels nil))))
+           nil)))
+
+  (defun my-org-agenda-skip-all-siblings-but-first ()
+    "Skip all but the first non-done entry."
+    (let (should-skip-entry)
+      (unless (org-current-is-todo)
+        (setq should-skip-entry t))
+      (save-excursion
+        (while (and (not should-skip-entry) (org-goto-sibling t))
+          (when (org-current-is-todo)
+            (setq should-skip-entry t))))
+      (when should-skip-entry
+        (or (outline-next-heading)
+            (goto-char (point-max))))))
+
+  (defun org-current-is-todo ()
+    (string= "TODO" (org-get-todo-state)))
 
   ;; ====== Time Clocking ======
-  ;; (global-set-key (kbd "<f9> I") 'duo/punch-in)
-  ;; (global-set-key (kbd "<f9> O") 'duo/punch-out)
-  ;; (global-set-key (kbd "<f9> SPC") 'duo/clock-in-last-task)
+  (global-set-key (kbd "<f9> I") 'bh/punch-in)
+  (global-set-key (kbd "<f9> O") 'bh/punch-out)
+  (global-set-key (kbd "<f9> SPC") 'bh/clock-in-last-task)
+  ;; Bookmark handling
+  ;;
+  (global-set-key (kbd "<C-f5>") '(lambda () (interactive) (bookmark-set "SAVED")))
+  (global-set-key (kbd "<f5>") '(lambda () (interactive) (bookmark-jump "SAVED")))
   ;; Separate drawers for clocking and logs
   (setq org-drawers (quote ("PROPERTIES" "LOGBOOK")))
   ;; Save clock data and notes in the LOGBOOK drawer
@@ -754,199 +931,427 @@ you should place your code here."
   ;; Clock out when moving task to a done state
   (setq org-clock-out-when-done t)
   ;; Save the running clock and all clock history when exiting Emacs, load it on startup.
-  ;; (setq org-clock-persist t)
+  (setq org-clock-persist t)
   ;; Resume clocking task when emacs is restarted
-  ;; (org-clock-persistence-insinuate)
+  (org-clock-persistence-insinuate)
   ;; Do not prompt to resume an active clock
-  ;; (setq org-clock-persist-query-resume nil)
+  (setq org-clock-persist-query-resume nil)
   ;; Show lot of clocking history so it's easy to pick items off the C-F11 list
   (setq org-clock-history-length 23)
   ;; Resume clocking task on clock-in if the clock is open
-  ;; (setq org-clock-in-resume t)
+  (setq org-clock-in-resume t)
   ;; Enable auto clock resolution for finding open clocks
-  ;; (setq org-clock-auto-clock-resolution (quote when-no-clock-is-running))
+  (setq org-clock-auto-clock-resolution (quote when-no-clock-is-running))
   ;; Include current clocking task in clock reports
-  ;; (setq org-clock-report-include-clocking-task t)
+  (setq org-clock-report-include-clocking-task t)
   ;; Change tasks to NEXT when clocking in
-  ;; (setq org-clock-in-switch-to-state 'duo/clock-in-to-next)
+  (setq org-clock-in-switch-to-state 'bh/clock-in-to-next)
 
-  ;; (setq duo/keep-clock-running nil)
+  (setq bh/keep-clock-running nil)
 
-;;   (defun duo/clock-in-to-next (kw)
-;;     "Switch a task from TODO to NEXT when clocking in.
-;; Skips capture tasks, projects, and subprojects.
-;; Switch projects and subprojects from NEXT back to TODO"
-;;     (when (not (and (boundp 'org-capture-mode) org-capture-mode))
-;;       (cond
-;;        ((and (member (org-get-todo-state) (list "TODO"))
-;;              (duo/is-task-p))
-;;         "NEXT")
-;;        ((and (member (org-get-todo-state) (list "NEXT"))
-;;              (duo/is-project-p))
-;;         "TODO"))))
+  (defun bh/clock-in-to-next (kw)
+    "Switch a task from TODO to NEXT when clocking in.
+  Skips capture tasks, projects, and subprojects.
+  Switch projects and subprojects from NEXT back to TODO"
+    (when (not (and (boundp 'org-capture-mode) org-capture-mode))
+      (cond
+       ((and (member (org-get-todo-state) (list "TODO"))
+             (bh/is-task-p))
+        "NEXT")
+       ((and (member (org-get-todo-state) (list "NEXT"))
+             (bh/is-project-p))
+        "TODO"))))
 
-;;   (defun duo/is-project-p ()
-;;     "Any task with a todo keyword subtask"
-;;     (save-restriction
-;;       (widen)
-;;       (let ((has-subtask)
-;;             (subtree-end (save-excursion (org-end-of-subtree t)))
-;;             (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
-;;         (save-excursion
-;;           (forward-line 1)
-;;           (while (and (not has-subtask)
-;;                       (< (point) subtree-end)
-;;                       (re-search-forward "^\*+ " subtree-end t))
-;;             (when (member (org-get-todo-state) org-todo-keywords-1)
-;;               (setq has-subtask t))))
-;;         (and is-a-task has-subtask))))
+  (defun bh/is-project-p ()
+    "Any task with a todo keyword subtask"
+    (save-restriction
+      (widen)
+      (let ((has-subtask)
+            (subtree-end (save-excursion (org-end-of-subtree t)))
+            (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
+        (save-excursion
+          (forward-line 1)
+          (while (and (not has-subtask)
+                      (< (point) subtree-end)
+                      (re-search-forward "^\*+ " subtree-end t))
+            (when (member (org-get-todo-state) org-todo-keywords-1)
+              (setq has-subtask t))))
+        (and is-a-task has-subtask))))
 
-;;   (defun duo/is-project-subtree-p ()
-;;     "Any task with a todo keyword that is in a project subtree.
-;; Callers of this function already widen the buffer view."
-;;     (let ((task (save-excursion (org-back-to-heading 'invisible-ok)
-;;                                 (point))))
-;;       (save-excursion
-;;         (duo/find-project-task)
-;;         (if (equal (point) task)
-;;             nil
-;;           t))))
+  (defun bh/is-project-subtree-p ()
+    "Any task with a todo keyword that is in a project subtree.
+  Callers of this function already widen the buffer view."
+    (let ((task (save-excursion (org-back-to-heading 'invisible-ok)
+                                (point))))
+      (save-excursion
+        (bh/find-project-task)
+        (if (equal (point) task)
+            nil
+          t))))
 
-;;   (defun duo/is-task-p ()
-;;     "Any task with a todo keyword and no subtask"
-;;     (save-restriction
-;;       (widen)
-;;       (let ((has-subtask)
-;;             (subtree-end (save-excursion (org-end-of-subtree t)))
-;;             (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
-;;         (save-excursion
-;;           (forward-line 1)
-;;           (while (and (not has-subtask)
-;;                       (< (point) subtree-end)
-;;                       (re-search-forward "^\*+ " subtree-end t))
-;;             (when (member (org-get-todo-state) org-todo-keywords-1)
-;;               (setq has-subtask t))))
-;;         (and is-a-task (not has-subtask)))))
+  (defun bh/is-task-p ()
+    "Any task with a todo keyword and no subtask"
+    (save-restriction
+      (widen)
+      (let ((has-subtask)
+            (subtree-end (save-excursion (org-end-of-subtree t)))
+            (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
+        (save-excursion
+          (forward-line 1)
+          (while (and (not has-subtask)
+                      (< (point) subtree-end)
+                      (re-search-forward "^\*+ " subtree-end t))
+            (when (member (org-get-todo-state) org-todo-keywords-1)
+              (setq has-subtask t))))
+        (and is-a-task (not has-subtask)))))
 
-;;   (defun duo/is-subproject-p ()
-;;     "Any task which is a subtask of another project"
-;;     (let ((is-subproject)
-;;           (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
-;;       (save-excursion
-;;         (while (and (not is-subproject) (org-up-heading-safe))
-;;           (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
-;;             (setq is-subproject t))))
-;;       (and is-a-task is-subproject)))
+  (defun bh/is-subproject-p ()
+    "Any task which is a subtask of another project"
+    (let ((is-subproject)
+          (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
+      (save-excursion
+        (while (and (not is-subproject) (org-up-heading-safe))
+          (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
+            (setq is-subproject t))))
+      (and is-a-task is-subproject)))
 
-;;   (defun duo/find-project-task ()
-;;     "Move point to the parent (project) task if any"
-;;     (save-restriction
-;;       (widen)
-;;       (let ((parent-task (save-excursion (org-back-to-heading 'invisible-ok) (point))))
-;;         (while (org-up-heading-safe)
-;;           (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
-;;             (setq parent-task (point))))
-;;         (goto-char parent-task)
-;;         parent-task)))
+  (defun bh/list-sublevels-for-projects-indented ()
+    "Set org-tags-match-list-sublevels so when restricted to a subtree we list all subtasks.
+  This is normally used by skipping functions where this variable is already local to the agenda."
+    (if (marker-buffer org-agenda-restrict-begin)
+        (setq org-tags-match-list-sublevels 'indented)
+      (setq org-tags-match-list-sublevels nil))
+    nil)
 
-;;   (defun duo/punch-in (arg)
-;;     "Start continuous clocking and set the default task to the
-;; selected task.  If no task is selected set the Organization task
-;; as the default task."
-;;     (interactive "p")
-;;     (setq duo/keep-clock-running t)
-;;     (if (equal major-mode 'org-agenda-mode)
-;;         ;;
-;;         ;; We're in the agenda
-;;         ;;
-;;         (let* ((marker (org-get-at-bol 'org-hd-marker))
-;;                (tags (org-with-point-at marker (org-get-tags-at))))
-;;           (if (and (eq arg 4) tags)
-;;               (org-agenda-clock-in '(16))
-;;             (duo/clock-in-organization-task-as-default)))
-;;       ;;
-;;       ;; We are not in the agenda
-;;       ;;
-;;       (save-restriction
-;;         (widen)
-;;                                         ; Find the tags on the current task
-;;         (if (and (equal major-mode 'org-mode) (not (org-before-first-heading-p)) (eq arg 4))
-;;             (org-clock-in '(16))
-;;           (duo/clock-in-organization-task-as-default)))))
+  (defun bh/list-sublevels-for-projects ()
+    "Set org-tags-match-list-sublevels so when restricted to a subtree we list all subtasks.
+  This is normally used by skipping functions where this variable is already local to the agenda."
+    (if (marker-buffer org-agenda-restrict-begin)
+        (setq org-tags-match-list-sublevels t)
+      (setq org-tags-match-list-sublevels nil))
+    nil)
 
-;;   (defun duo/punch-out ()
-;;     (interactive)
-;;     (setq duo/keep-clock-running nil)
-;;     (when (org-clock-is-active)
-;;       (org-clock-out))
-;;     (org-agenda-remove-restriction-lock))
+  (defvar bh/hide-scheduled-and-waiting-next-tasks t)
 
-  ;; (defvar duo/organization-task-id "eb155a82-92b2-4f25-a3c6-0304591af2f9")
+  (defun bh/toggle-next-task-display ()
+    (interactive)
+    (setq bh/hide-scheduled-and-waiting-next-tasks (not bh/hide-scheduled-and-waiting-next-tasks))
+    (when  (equal major-mode 'org-agenda-mode)
+      (org-agenda-redo))
+    (message "%s WAITING and SCHEDULED NEXT Tasks" (if bh/hide-scheduled-and-waiting-next-tasks "Hide" "Show")))
 
-;;   (defun duo/clock-in-organization-task-as-default ()
-;;     (interactive)
-;;     (org-with-point-at (org-id-find duo/organization-task-id 'marker)
-;;       (org-clock-in '(16))))
+  (defun bh/skip-stuck-projects ()
+    "Skip trees that are not stuck projects"
+    (save-restriction
+      (widen)
+      (let ((next-headline (save-excursion (or (outline-next-heading) (point-max)))))
+        (if (bh/is-project-p)
+            (let* ((subtree-end (save-excursion (org-end-of-subtree t)))
+                   (has-next ))
+              (save-excursion
+                (forward-line 1)
+                (while (and (not has-next) (< (point) subtree-end) (re-search-forward "^\\*+ NEXT " subtree-end t))
+                  (unless (member "WAITING" (org-get-tags-at))
+                    (setq has-next t))))
+              (if has-next
+                  nil
+                next-headline)) ; a stuck project, has subtasks but no next task
+          nil))))
 
-;;   (defun duo/clock-in-default-task ()
-;;     (save-excursion
-;;       (org-with-point-at org-clock-default-task
-;;         (org-clock-in))))
+  (defun bh/skip-non-stuck-projects ()
+    "Skip trees that are not stuck projects"
+    ;; (bh/list-sublevels-for-projects-indented)
+    (save-restriction
+      (widen)
+      (let ((next-headline (save-excursion (or (outline-next-heading) (point-max)))))
+        (if (bh/is-project-p)
+            (let* ((subtree-end (save-excursion (org-end-of-subtree t)))
+                   (has-next ))
+              (save-excursion
+                (forward-line 1)
+                (while (and (not has-next) (< (point) subtree-end) (re-search-forward "^\\*+ NEXT " subtree-end t))
+                  (unless (member "WAITING" (org-get-tags-at))
+                    (setq has-next t))))
+              (if has-next
+                  next-headline
+                nil)) ; a stuck project, has subtasks but no next task
+          next-headline))))
 
-;;   (defun duo/clock-in-parent-task ()
-;;     "Move point to the parent (project) task if any and clock in"
-;;     (let ((parent-task))
-;;       (save-excursion
-;;         (save-restriction
-;;           (widen)
-;;           (while (and (not parent-task) (org-up-heading-safe))
-;;             (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
-;;               (setq parent-task (point))))
-;;           (if parent-task
-;;               (org-with-point-at parent-task
-;;                 (org-clock-in))
-;;             (when duo/keep-clock-running
-;;               (duo/clock-in-default-task)))))))
+  (defun bh/skip-non-projects ()
+    "Skip trees that are not projects"
+    ;; (bh/list-sublevels-for-projects-indented)
+    (if (save-excursion (bh/skip-non-stuck-projects))
+        (save-restriction
+          (widen)
+          (let ((subtree-end (save-excursion (org-end-of-subtree t))))
+            (cond
+             ((bh/is-project-p)
+              nil)
+             ((and (bh/is-project-subtree-p) (not (bh/is-task-p)))
+              nil)
+             (t
+              subtree-end))))
+      (save-excursion (org-end-of-subtree t))))
 
-;;   (defun duo/clock-out-maybe ()
-;;     (when (and duo/keep-clock-running
-;;                (not org-clock-clocking-in)
-;;                (marker-buffer org-clock-default-task)
-;;                (not org-clock-resolving-clocks-due-to-idleness))
-;;       (duo/clock-in-parent-task)))
+  (defun bh/skip-non-tasks ()
+    "Show non-project tasks.
+Skip project and sub-project tasks, habits, and project related tasks."
+    (save-restriction
+      (widen)
+      (let ((next-headline (save-excursion (or (outline-next-heading) (point-max)))))
+        (cond
+         ((bh/is-task-p)
+          nil)
+         (t
+          next-headline)))))
 
-;;   (add-hook 'org-clock-out-hook 'duo/clock-out-maybe 'append)
+  (defun bh/skip-project-trees-and-habits ()
+    "Skip trees that are projects"
+    (save-restriction
+      (widen)
+      (let ((subtree-end (save-excursion (org-end-of-subtree t))))
+        (cond
+         ((bh/is-project-p)
+          subtree-end)
+         ((org-is-habit-p)
+          subtree-end)
+         (t
+          nil)))))
 
-;;   (defun duo/clock-in-last-task (arg)
-;;     "Clock in the interrupted task if there is one
-;; Skip the default task and get the next one.
-;; A prefix arg forces clock in of the default task."
-;;     (interactive "p")
-;;     (let ((clock-in-to-task
-;;            (cond
-;;             ((eq arg 4) org-clock-default-task)
-;;             ((and (org-clock-is-active)
-;;                   (equal org-clock-default-task (cadr org-clock-history)))
-;;              (caddr org-clock-history))
-;;             ((org-clock-is-active) (cadr org-clock-history))
-;;             ((equal org-clock-default-task (car org-clock-history)) (cadr org-clock-history))
-;;             (t (car org-clock-history)))))
-;;       (widen)
-;;       (org-with-point-at clock-in-to-task
-;;         (org-clock-in nil))))
+  (defun bh/skip-projects-and-habits-and-single-tasks ()
+    "Skip trees that are projects, tasks that are habits, single non-project tasks"
+    (save-restriction
+      (widen)
+      (let ((next-headline (save-excursion (or (outline-next-heading) (point-max)))))
+        (cond
+         ((org-is-habit-p)
+          next-headline)
+         ((and bh/hide-scheduled-and-waiting-next-tasks
+               (member "WAITING" (org-get-tags-at)))
+          next-headline)
+         ((bh/is-project-p)
+          next-headline)
+         ((and (bh/is-task-p) (not (bh/is-project-subtree-p)))
+          next-headline)
+         (t
+          nil)))))
+
+  (defun bh/skip-project-tasks-maybe ()
+    "Show tasks related to the current restriction.
+When restricted to a project, skip project and sub project tasks, habits, NEXT tasks, and loose tasks.
+When not restricted, skip project and sub-project tasks, habits, and project related tasks."
+    (save-restriction
+      (widen)
+      (let* ((subtree-end (save-excursion (org-end-of-subtree t)))
+             (next-headline (save-excursion (or (outline-next-heading) (point-max))))
+             (limit-to-project (marker-buffer org-agenda-restrict-begin)))
+        (cond
+         ((bh/is-project-p)
+          next-headline)
+         ((org-is-habit-p)
+          subtree-end)
+         ((and (not limit-to-project)
+               (bh/is-project-subtree-p))
+          subtree-end)
+         ((and limit-to-project
+               (bh/is-project-subtree-p)
+               (member (org-get-todo-state) (list "NEXT")))
+          subtree-end)
+         (t
+          nil)))))
+
+  (defun bh/skip-project-tasks ()
+    "Show non-project tasks.
+Skip project and sub-project tasks, habits, and project related tasks."
+    (save-restriction
+      (widen)
+      (let* ((subtree-end (save-excursion (org-end-of-subtree t))))
+        (cond
+         ((bh/is-project-p)
+          subtree-end)
+         ((org-is-habit-p)
+          subtree-end)
+         ((bh/is-project-subtree-p)
+          subtree-end)
+         (t
+          nil)))))
+
+  (defun bh/skip-non-project-tasks ()
+    "Show project tasks.
+Skip project and sub-project tasks, habits, and loose non-project tasks."
+    (save-restriction
+      (widen)
+      (let* ((subtree-end (save-excursion (org-end-of-subtree t)))
+             (next-headline (save-excursion (or (outline-next-heading) (point-max)))))
+        (cond
+         ((bh/is-project-p)
+          next-headline)
+         ((org-is-habit-p)
+          subtree-end)
+         ((and (bh/is-project-subtree-p)
+               (member (org-get-todo-state) (list "NEXT")))
+          subtree-end)
+         ((not (bh/is-project-subtree-p))
+          subtree-end)
+         (t
+          nil)))))
+
+  (defun bh/skip-projects-and-habits ()
+    "Skip trees that are projects and tasks that are habits"
+    (save-restriction
+      (widen)
+      (let ((subtree-end (save-excursion (org-end-of-subtree t))))
+        (cond
+         ((bh/is-project-p)
+          subtree-end)
+         ((org-is-habit-p)
+          subtree-end)
+         (t
+          nil)))))
+
+  (defun bh/skip-non-subprojects ()
+    "Skip trees that are not projects"
+    (let ((next-headline (save-excursion (outline-next-heading))))
+      (if (bh/is-subproject-p)
+          nil
+        next-headline)))
+
+  (defun bh/find-project-task ()
+    "Move point to the parent (project) task if any"
+    (save-restriction
+      (widen)
+      (let ((parent-task (save-excursion (org-back-to-heading 'invisible-ok) (point))))
+        (while (org-up-heading-safe)
+          (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
+            (setq parent-task (point))))
+        (goto-char parent-task)
+        parent-task)))
+
+  (defun bh/punch-in (arg)
+    "Start continuous clocking and set the default task to the
+  selected task.  If no task is selected set the Organization task
+  as the default task."
+    (interactive "p")
+    (setq bh/keep-clock-running t)
+    (if (equal major-mode 'org-agenda-mode)
+        ;;
+        ;; We're in the agenda
+        ;;
+        (let* ((marker (org-get-at-bol 'org-hd-marker))
+               (tags (org-with-point-at marker (org-get-tags-at))))
+          (if (and (eq arg 4) tags)
+              (org-agenda-clock-in '(16))
+            (bh/clock-in-organization-task-as-default)))
+      ;;
+      ;; We are not in the agenda
+      ;;
+      (save-restriction
+        (widen)
+        ;; Find the tags on the current task
+        (if (and (equal major-mode 'org-mode) (not (org-before-first-heading-p)) (eq arg 4))
+            (org-clock-in '(16))
+          (bh/clock-in-organization-task-as-default)))))
+
+  (defun bh/punch-out ()
+    (interactive)
+    (setq bh/keep-clock-running nil)
+    (when (org-clock-is-active)
+      (org-clock-out))
+    (org-agenda-remove-restriction-lock))
+
+  (defvar bh/organization-task-id "eb155a82-92b2-4f25-a3c6-0304591af2f9")
+
+  (defun bh/clock-in-organization-task-as-default ()
+    (interactive)
+    (org-with-point-at (org-id-find bh/organization-task-id 'marker)
+      (org-clock-in '(16))))
+
+  (defun bh/clock-in-default-task ()
+    (save-excursion
+      (org-with-point-at org-clock-default-task
+        (org-clock-in))))
+
+  (defun bh/clock-in-parent-task ()
+    "Move point to the parent (project) task if any and clock in"
+    (let ((parent-task))
+      (save-excursion
+        (save-restriction
+          (widen)
+          (while (and (not parent-task) (org-up-heading-safe))
+            (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
+              (setq parent-task (point))))
+          (if parent-task
+              (org-with-point-at parent-task
+                (org-clock-in))
+            (when bh/keep-clock-running
+              (bh/clock-in-default-task)))))))
+
+  (defun bh/clock-out-maybe ()
+    (when (and bh/keep-clock-running
+               (not org-clock-clocking-in)
+               (marker-buffer org-clock-default-task)
+               (not org-clock-resolving-clocks-due-to-idleness))
+      (bh/clock-in-parent-task)))
+
+  (add-hook 'org-clock-out-hook 'bh/clock-out-maybe 'append)
+
+  (defun bh/clock-in-last-task (arg)
+    "Clock in the interrupted task if there is one
+  Skip the default task and get the next one.
+  A prefix arg forces clock in of the default task."
+    (interactive "p")
+    (let ((clock-in-to-task
+           (cond
+            ((eq arg 4) org-clock-default-task)
+            ((and (org-clock-is-active)
+                  (equal org-clock-default-task (cadr org-clock-history)))
+             (caddr org-clock-history))
+            ((org-clock-is-active) (cadr org-clock-history))
+            ((equal org-clock-default-task (car org-clock-history)) (cadr org-clock-history))
+            (t (car org-clock-history)))))
+      (widen)
+      (org-with-point-at clock-in-to-task
+        (org-clock-in nil))))
+
+  ;; Archive setup
+  (setq org-archive-mark-done nil)
+  (setq org-archive-location "%s_archive::* Archived Tasks")
+
+  (defun bh/skip-non-archivable-tasks ()
+    "Skip trees that are not available for archiving"
+    (save-restriction
+      (widen)
+      ;; Consider only tasks with done todo headings as archivable candidates
+      (let ((next-headline (save-excursion (or (outline-next-heading) (point-max))))
+            (subtree-end (save-excursion (org-end-of-subtree t))))
+        (if (member (org-get-todo-state) org-todo-keywords-1)
+            (if (member (org-get-todo-state) org-done-keywords)
+                (let* ((daynr (string-to-int (format-time-string "%d" (current-time))))
+                       (a-month-ago (* 60 60 24 (+ daynr 1)))
+                       (last-month (format-time-string "%Y-%m-" (time-subtract (current-time) (seconds-to-time a-month-ago))))
+                       (this-month (format-time-string "%Y-%m-" (current-time)))
+                       (subtree-is-current (save-excursion
+                                             (forward-line 1)
+                                             (and (< (point) subtree-end)
+                                                  (re-search-forward (concat last-month "\\|" this-month) subtree-end t)))))
+                  (if subtree-is-current
+                      subtree-end ; Has a date in this month or last month, skip it
+                    nil))  ; available to archive
+              (or subtree-end (point-max)))
+          next-headline))))
 
   ;; ====== Time Report =======
   ;; Agenda clock report parameters
-  ;; (setq org-agenda-clockreport-parameter-plist
-  ;;       (quote (:link t :maxlevel 5 :fileskip0 t :compact t :narrow 80)))
+  (setq org-agenda-clockreport-parameter-plist
+        (quote (:link t :maxlevel 5 :fileskip0 t :compact t :narrow 80)))
 
   ;; ====== Task Estimate ======
   ;; task estimate with column view
 
-  ; Set default column view headings: Task Effort Clock_Summary
+  ;; Set default column view headings: Task Effort Clock_Summary
   (setq org-columns-default-format "%80ITEM(Task) %10Effort(Effort){:} %10CLOCKSUM")
-  ; global Effort estimate values
-  ; global STYLE property values for completion
+  ;; global Effort estimate values
+  ;; global STYLE property values for completion
   (setq org-global-properties (quote (("Effort_ALL" . "0:15 0:30 0:45 1:00 2:00 3:00 4:00 5:00 6:00 0:00")
                                       ("STYLE_ALL" . "habit"))))
   ;; Agenda log mode items to display (closed and state changes by default)
@@ -961,8 +1366,9 @@ you should place your code here."
   (setq org-export-with-toc nil)
 
   ;; Targets include this file and any file contributing to the agenda - up to 2 levels deep
-  (setq org-refile-targets (quote ((nil :maxlevel . 3)
-                                   (org-agenda-files :maxlevel . 3))))
+  (setq org-refile-targets (quote ((nil :maxlevel . 1)
+                                   (org-agenda-files :maxlevel . 1)
+                                   (org-notes-files :maxlevel . 9))))
 
   ;; Use full outline paths for refile targets - we file directly with IDO
   (setq org-refile-use-outline-path 'file)
@@ -971,7 +1377,7 @@ you should place your code here."
   (setq org-outline-path-complete-in-steps nil)
 
   ;; Allow refile to create parent tasks with confirmation
-  (setq org-refile-allow-creating-parent-nodes (quote confirm))
+  (setq org-refile-allow-creating-parent-nodes t) ;; (quote confirm)
 
   ;; Use IDO for both buffer and file completion and ido-everywhere to t
   (setq org-completion-use-ido t)
@@ -985,18 +1391,12 @@ you should place your code here."
   (setq org-indirect-buffer-display 'current-window)
 
   ;; Refile settings
-                                        ; Exclude DONE state tasks from refile targets
-  (defun duo/verify-refile-target ()
+  ;; Exclude DONE state tasks from refile targets
+  (defun bh/verify-refile-target ()
     "Exclude todo keywords with a done state from refile targets"
     (not (member (nth 2 (org-heading-components)) org-done-keywords)))
 
-  (setq org-refile-target-verify-function 'duo/verify-refile-target)
-
-  ;; deft
-  (setq deft-extensions '("org"))
-  (setq deft-directory "~/org")
-  (setq deft-recursive t)
-  (setq deft-use-filename-as-title t)
+  (setq org-refile-target-verify-function 'bh/verify-refile-target)
 
   ;; org-export
   (setq org-export-backends '(ascii html md))
@@ -1006,6 +1406,12 @@ you should place your code here."
             (lambda ()
               (delete-trailing-whitespace)
               nil))
+
+  ;; Encrypt all entries before saving
+  ;; (org-crypt-use-before-save-magic)
+  ;; (setq org-tags-exclude-from-inheritance (quote ("crypt")))
+  ;; ;; GPG key to use for encryption
+  ;; (setq org-crypt-key "AABBCC")
 
 ;;; add-node-modules-path.el --- Add node_modules to your exec-path
 
@@ -1110,6 +1516,29 @@ you should place your code here."
 
   ;; yasnippet settings
   (setq yas-snippet-dirs '("~/.spacemacs.d/snippets"))
+
+  ;; calc rem
+  ;; (defun parse-rem (beg end)
+  ;;   "message region or \"empty string\" if none highlighted"
+  ;;   (interactive (if (use-region-p)
+  ;;                    (list (region-beginning) (region-end))
+  ;;                  (list (point-min) (point-min))))
+  ;;   (let ((selection (buffer-substring-no-properties beg end)))
+  ;;     (if (not (= (length selection) 0))
+  ;;         (progn
+  ;;           (let ((ori (string-to-number selection)))
+  ;;             (delete-region beg end)
+  ;;             (insert
+  ;;              (number-to-string
+  ;;               ;; reserve 4 bit of float
+  ;;               (/ (fround (/ (* 10000 ori) 1.875)) 10000)
+  ;;               ))))
+  ;;       (message "empty string"))))
+
+  ;; (global-set-key (kbd "<f5>") 'parse-rem)
+
+  ;; disable Subscripts and Superscripts
+  (setq org-use-sub-superscripts nil)
 
   ;; org-html styles
   (setq org-html-preamble nil)

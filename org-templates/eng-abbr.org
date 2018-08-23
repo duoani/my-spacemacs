@@ -1,0 +1,5 @@
+* %^{Abbrivation} - %^{Full words}
+%^{It means}
+#+BEGIN_EXAMPLE
+%?
+#+END_EXAMPLE

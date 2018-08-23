@@ -1,0 +1,5 @@
+* %^{Word} [%^{Phonics}]
+1. %^{Word Class|n.|v.|vi.|vt.|adj.|adv.|prep.|prop.|conj.} %{Means}
+  #+BEGIN_EXAMPLE
+  %?
+  #+END_EXAMPLE
