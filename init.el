@@ -409,7 +409,7 @@ you should place your code here."
           ("m" "Meeting" entry (file org-file-gtd-inbox)
            (file "~/.spacemacs.d/org-templates/meeting.org") :clock-in t :clock-resume t)
 
-          ("s" "Code Snippet" entry (file+headline org-file-note-snippet "Code Snippets")
+          ("s" "Code Snippet" entry (file org-file-gtd-inbox)
            (file "~/.spacemacs.d/org-templates/snippet.org") :empty-lines 1)
 
 
@@ -607,8 +607,11 @@ you should place your code here."
     "Hooks for org-mode."
     (define-key org-mode-map [M-return] 'org-meta-return))
   (add-hook 'org-mode-hook 'my-org-mode-hook)
-  ;; (define-key org-mode-map [M-return] 'org-meta-return)
 
+  ;; rebind the default key-bindings "/" of which evilified-mode shadoweded in org-agenda-mode.
+  ;; see https://stackoverflow.com/questions/41314759/rebind-keys-in-spacemacs-for-neotree-buffer/41351544#41351544
+  (with-eval-after-load 'org-agenda
+    (evil-define-key 'evilified org-agenda-mode-map (kbd "/") 'org-agenda-filter-by-tag))
 
   ;; Make org-mode friendly for Chinese chars.
   (setq org-emphasis-regexp-components
@@ -694,20 +697,25 @@ you should place your code here."
           ("meeting" . ?M)
           (:endgrouptag)
 
+          ;; note
           (:startgrouptag)
+          ("note" . ?n)
+          (:grouptags)
           ("git" . ?G)
           ("nodejs" . ?N)
           ("javascript" . ?J)
           ("css" . ?C)
           ("html" . ?H)
+          ("emacs" . ?E)
           (:endgrouptag)
 
-          (:startgroup)
+          ;; note>emacs
+          (:startgrouptag)
           ("emacs" . ?E)
           (:grouptags)
           ("spacemacs" . ?S)
-          ("lisp")
-          (:endgroup)
+          ("lisp" . ?L)
+          (:endgrouptag)
           ))
 
   ;; Todo keywords
@@ -800,6 +808,10 @@ you should place your code here."
 
   ;; Compact the block agenda view
   (setq org-agenda-compact-blocks t)
+
+  ;; Enable persistent filters with the following variable
+  ;; see http://doc.norang.ca/org-mode.html#AgendaPersistentFilters
+  (setq org-agenda-persistent-filter t)
 
   ;; custom agemda views
   (setq org-agenda-custom-commands

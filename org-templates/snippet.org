@@ -1,4 +1,4 @@
-* %? %^g
+* %^{Description} %^g                                               :snippet:
 #+BEGIN_SRC %^{Language|emacs-lisp|javascript|css|scss|html|java}
-%?
+%i
 #+END_SRC
