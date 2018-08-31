@@ -376,6 +376,7 @@ you should place your code here."
   (setq org-file-note-english (expand-file-name "english.org" org-note-dir))
   (setq org-file-note-snippet (expand-file-name "snippet.org" org-note-dir))
   (setq org-file-note-journal (expand-file-name "journal.org" org-note-dir))
+  (setq org-file-note-bookkeeping (expand-file-name "account.ledger" org-note-dir))
   (setq org-default-notes-file org-file-gtd-inbox)
 
   ;; Agenda file list. Only displays things in GTD files.
@@ -407,6 +408,9 @@ you should place your code here."
 
           ("j" "Journal" entry (file+datetree org-file-note-journal)
            "* %?" :clock-in t :clock-resume t :empty-lines 1)
+
+          ("k" "Bookkeeping" plain (file org-file-note-bookkeeping)
+           (file "~/.spacemacs.d/org-templates/journal.ledger") :empty-lines 1)
 
           ("l" "Link entry" entry (file org-file-gtd-inbox)
            (file "~/.spacemacs.d/org-templates/link.org") :empty-lines 1)
@@ -1828,6 +1832,9 @@ i{
   ;; This may be dangerous - make sure you understand the consequences
   ;; of setting this -- see the docstring for details
   (setq org-confirm-babel-evaluate nil)
+
+  ;; ledger config
+  (setq ledger-reconcile-finish-force-quit t)
   ;; user-config end
   )
 
