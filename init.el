@@ -72,6 +72,7 @@ values."
      ;; spell-checking
      syntax-checking
      ;; version-control
+     finance
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
@@ -375,6 +376,7 @@ you should place your code here."
   (setq org-file-note-english (expand-file-name "english.org" org-note-dir))
   (setq org-file-note-snippet (expand-file-name "snippet.org" org-note-dir))
   (setq org-file-note-journal (expand-file-name "journal.org" org-note-dir))
+  (setq org-file-note-bookkeeping (expand-file-name "account.ledger" org-note-dir))
   (setq org-default-notes-file org-file-gtd-inbox)
 
   ;; Agenda file list. Only displays things in GTD files.
@@ -406,6 +408,9 @@ you should place your code here."
 
           ("j" "Journal" entry (file+datetree org-file-note-journal)
            "* %?" :clock-in t :clock-resume t :empty-lines 1)
+
+          ("k" "Bookkeeping" plain (file org-file-note-bookkeeping)
+           (file "~/.spacemacs.d/org-templates/journal.ledger") :empty-lines 1)
 
           ("l" "Link entry" entry (file org-file-gtd-inbox)
            (file "~/.spacemacs.d/org-templates/link.org") :empty-lines 1)
@@ -1368,6 +1373,7 @@ Skip project and sub-project tasks, habits, and loose non-project tasks."
   (setq-default org-export-with-section-numbers 6)
   (setq org-export-headline-levels 6)
   (setq org-export-with-toc nil)
+  (setq org-src-preserve-indentation t)
 
   ;; Targets include this file and any file contributing to the agenda - up to 2 levels deep
   (setq org-refile-targets (quote ((nil :maxlevel . 1)
@@ -1826,50 +1832,18 @@ i{
   ;; This may be dangerous - make sure you understand the consequences
   ;; of setting this -- see the docstring for details
   (setq org-confirm-babel-evaluate nil)
+
+  ;; ledger config
+  (setq ledger-reconcile-finish-force-quit t)
   ;; user-config end
   )
 
-;; Do not write anything past this comment. This is where Emacs will
-;; auto-generate custom variable definitions.
+;; Save the custom settings into a separate file
+(setq custom-file (expand-file-name "custom.el" dotspacemacs-directory))
+(load custom-file 'no-error 'no-message)
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(ansi-color-faces-vector
-   [default bold shadow italic underline bold bold-italic bold])
- '(evil-want-Y-yank-to-eol nil)
- '(fci-rule-color "#eee8d5" t)
- '(org-agenda-files nil)
- '(package-selected-packages
-   (quote
-    (solarized-theme all-the-icons-ivy helm-org-rifle winum unfill org-mime fuzzy edit-indirect org-category-capture linum-relative hungry-delete highlight-parentheses highlight-numbers highlight-indentation flx-ido fill-column-indicator evil-search-highlight-persist ghub let-alist evil-exchange diminish define-word epl clean-aindent-mode adaptive-wrap goto-chg f s pyenv-mode company-anaconda anaconda-mode yapfify pyvenv pytest py-isort pip-requirements live-py-mode hy-mode cython-mode pythonic xref-js2 yaml-mode vue-mode ssass-mode vue-html-mode lispy zoutline phpunit phpcbf php-extras php-auto-yasnippets graphviz-dot-mode drupal-mode php-mode xterm-color shell-pop multi-term eshell-z eshell-prompt-extras esh-help open-junk-file neotree move-text link-hint info+ indent-guide hide-comnt help-fns+ helm-make helm helm-core google-translate eyebrowse expand-region exec-path-from-shell evil-surround evil-nerd-commenter evil-mc evil-matchit evil-escape evil-ediff evil-anzu dumb-jump autothemer column-enforce-mode bind-key auto-compile packed aggressive-indent ace-window ace-link avy iedit smartparens bind-map highlight evil projectile async hydra orgit magit-gitflow evil-magit magit magit-popup git-commit dash helm-themes helm-swoop helm-projectile helm-mode-manager helm-gitignore helm-flx helm-descbinds helm-ag ace-jump-helm-line smeargle gitignore-mode gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link with-editor org-projectile org-present org org-pomodoro alert log4e gntp org-download htmlize gnuplot deft company-quickhelp zonokai-theme zenburn-theme zen-and-art-theme underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme tronesque-theme toxi-theme tao-theme tangotango-theme tango-plus-theme tango-2-theme sunny-day-theme sublime-themes subatomic256-theme subatomic-theme spacegray-theme soothe-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme seti-theme reverse-theme railscasts-theme purple-haze-theme professional-theme planet-theme phoenix-dark-pink-theme phoenix-dark-mono-theme pastels-on-dark-theme organic-green-theme omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme niflheim-theme naquadah-theme mustang-theme monokai-theme monochrome-theme molokai-theme moe-theme minimal-theme material-theme majapahit-theme lush-theme light-soap-theme jbeans-theme jazz-theme ir-black-theme inkpot-theme heroku-theme hemisu-theme hc-zenburn-theme gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme gandalf-theme flatui-theme flatland-theme firebelly-theme farmhouse-theme espresso-theme dracula-theme django-theme darktooth-theme darkokai-theme darkmine-theme darkburn-theme dakrone-theme cyberpunk-theme color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized clues-theme cherry-blossom-theme busybee-theme bubbleberry-theme birds-of-paradise-plus-theme badwolf-theme apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes afternoon-theme wgrep smex ivy-hydra counsel-projectile counsel swiper ivy js2-refactor helm-c-yasnippet auto-yasnippet youdao-dictionary names chinese-word-at-point web-mode web-beautify tagedit slim-mode scss-mode sass-mode pug-mode mmm-mode markdown-toc markdown-mode livid-mode skewer-mode simple-httpd less-css-mode json-mode json-snatcher json-reformat multiple-cursors js2-mode js-doc helm-css-scss helm-company haml-mode gh-md flycheck-pos-tip flycheck emmet-mode company-web web-completion-data company-tern dash-functional tern company-statistics company coffee-mode yasnippet ac-ispell auto-complete pangu-spacing mwim find-by-pinyin-dired chinese-pyim chinese-pyim-basedict pos-tip ace-pinyin pinyinlib ace-jump-mode ws-butler window-numbering which-key volatile-highlights vi-tilde-fringe uuidgen use-package toc-org spaceline powerline restart-emacs request rainbow-delimiters popwin persp-mode pcre2el paradox spinner org-plus-contrib package-build spacemacs-theme)))
- '(vc-annotate-background nil)
- '(vc-annotate-color-map
-   (quote
-    ((20 . "#dc322f")
-     (40 . "#cb4b16")
-     (60 . "#b58900")
-     (80 . "#859900")
-     (100 . "#2aa198")
-     (120 . "#268bd2")
-     (140 . "#d33682")
-     (160 . "#6c71c4")
-     (180 . "#dc322f")
-     (200 . "#cb4b16")
-     (220 . "#b58900")
-     (240 . "#859900")
-     (260 . "#2aa198")
-     (280 . "#268bd2")
-     (300 . "#d33682")
-     (320 . "#6c71c4")
-     (340 . "#dc322f")
-     (360 . "#cb4b16"))))
- '(vc-annotate-very-old-color nil))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+(defun dotspacemacs/emacs-custom-settings ()
+  "Emacs custom settings.
+This is an auto-generated function, do not modify its content directly, use
+Emacs customize menu instead.
+This function is called at the very end of Spacemacs initialization.")
