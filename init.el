@@ -80,6 +80,7 @@ values."
    ;; configuration in `dotspacemacs/user-config'.
    dotspacemacs-additional-packages '(vue-mode
                                       lispy
+                                      org-ref
                                       xref-js2
                                       helm-org-rifle
                                       solarized-theme)
@@ -406,8 +407,13 @@ you should place your code here."
           ("ep" "English Preposition Combination" entry (file+headline org-file-note-english "Preposition Combinations")
            (file "~/.spacemacs.d/org-templates/eng-preposition.org") :prepend :empty-lines 1)
 
-          ("j" "Journal" entry (file+datetree org-file-note-journal)
-           "* %?" :clock-in t :clock-resume t :empty-lines 1)
+          ("j" "Journal")
+
+          ("jw" "Weekly Report" entry (file+datetree org-file-note-journal)
+           (file "~/.spacemacs.d/org-templates/work-report.org") :clock-in t :clock-resume t :empty-lines 1)
+
+          ("jl" "Daily Log" item (file+datetree org-file-note-journal)
+           "- %?")
 
           ("k" "Bookkeeping" plain (file org-file-note-bookkeeping)
            (file "~/.spacemacs.d/org-templates/journal.ledger") :empty-lines 1)
@@ -725,6 +731,9 @@ you should place your code here."
           ("spacemacs" . ?S)
           ("lisp" . ?L)
           (:endgrouptag)
+
+          ;; others
+          ("ATTACH")
           ))
 
   ;; Todo keywords
@@ -1833,8 +1842,24 @@ i{
   ;; of setting this -- see the docstring for details
   (setq org-confirm-babel-evaluate nil)
 
+  ;; Attachment config
+  ;; Placing all ref docs into a consistent directory.
+  (setq org-attach-directory "~/org-reference/")
+  (setq org-attach-archive-delete 'query)
+  ;; Disable auto stage when attachments is changed (added or removed).
+  (setq org-attach-commit nil)
+
   ;; ledger config
   (setq ledger-reconcile-finish-force-quit t)
+
+  (add-to-list 'load-path "~/.spacemacs.d/packages/")
+  (require 'rfc)
+  (setq rfc-url-save-directory "~/rfc")
+  (setq rfc-index-url "http://www.ietf.org/rfc/rfc-index.txt")
+  (setq rfc-archive-alist (list (concat rfc-url-save-directory "/rfc.zip")
+                                rfc-url-save-directory
+                                "http://www.ietf.org/rfc/"))
+  (setq rfc-insert-content-url-hook '(rfc-url-save))
   ;; user-config end
   )
 
