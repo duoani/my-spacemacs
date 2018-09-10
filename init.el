@@ -616,6 +616,7 @@ you should place your code here."
                             org-bibtex
                             org-docview
                             org-info
+                            org-checklist
                             org-crypt)))
 
   (defun my-org-mode-hook ()
