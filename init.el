@@ -412,7 +412,7 @@ you should place your code here."
           ("jw" "Weekly Report" entry (file+datetree org-file-note-journal)
            (file "~/.spacemacs.d/org-templates/work-report.org") :clock-in t :clock-resume t :empty-lines 1)
 
-          ("jl" "Daily Log" item (file+datetree org-file-note-journal)
+          ("jd" "Daily Log" item (file+datetree org-file-note-journal)
            "- %?")
 
           ("k" "Bookkeeping" plain (file org-file-note-bookkeeping)
@@ -629,6 +629,10 @@ you should place your code here."
   (with-eval-after-load 'org-agenda
     (evil-define-key 'evilified org-agenda-mode-map (kbd "/") 'org-agenda-filter-by-tag))
 
+  ;; hide the emphasis markup (e.g. /.../ for italics, *...* for bold, etc.)
+  ;; @see https://zzamboni.org/post/beautifying-org-mode-in-emacs/
+  (setq org-hide-emphasis-markers t)
+
   ;; Make org-mode friendly for Chinese chars.
   (setq org-emphasis-regexp-components
         '(
@@ -638,6 +642,20 @@ you should place your code here."
           "."                           ;body-regexp
           1                             ; newline
           ))
+
+  (custom-theme-set-faces
+   'sanityinc-solarized-dark
+   ;; '(org-block                 ((t (:inherit fixed-pitch))))
+   ;; '(org-document-info         ((t (:foreground "dark orange"))))
+   ;; '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
+   ;; '(org-link                  ((t (:foreground "royal blue" :underline t))))
+   ;; '(org-meta-line             ((t (:inherit font-lock-comment-face))))
+   ;; '(org-property-value        ((t (:inherit font-lock-comment-face))) t)
+   ;; '(org-special-keyword       ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+   ;; '(org-tag                   ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
+   ;; '(org-verbatim              ((t (:inherit (shadow fixed-pitch)))))
+   '(org-drawer ((t (:foreground "yellow"))))
+   )
 
   ;; Register
   (global-set-key (kbd "<f2> m") 'point-to-register)
