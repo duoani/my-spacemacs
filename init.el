@@ -1393,6 +1393,8 @@ Skip project and sub-project tasks, habits, and loose non-project tasks."
                                       ("STYLE_ALL" . "habit"))))
   ;; Agenda log mode items to display (closed and state changes by default)
   (setq org-agenda-log-mode-items (quote (closed state)))
+  ;; show habit in every day
+  (setq org-habit-show-habits-only-for-today nil)
 
 
   ;; ====== Exporting =======
