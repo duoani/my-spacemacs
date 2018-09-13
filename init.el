@@ -1403,6 +1403,7 @@ Skip project and sub-project tasks, habits, and loose non-project tasks."
   (setq-default org-export-with-section-numbers 6)
   (setq org-export-headline-levels 6)
   (setq org-export-with-toc nil)
+  (setq org-export-with-tags nil)
   (setq org-src-preserve-indentation t)
 
   ;; Targets include this file and any file contributing to the agenda - up to 2 levels deep
