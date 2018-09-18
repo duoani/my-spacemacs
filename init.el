@@ -591,7 +591,9 @@ you should place your code here."
   (add-hook 'web-mode-hook 'my-web-mode-hook)
 
   (add-to-list 'auto-mode-alist '("/.*\\.vue\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("/.*\\.styl\\'" . css-mode))
+  (add-to-list 'auto-mode-alist '("/.*\\.wxml\\'" . web-mode))
+  ;; (add-to-list 'auto-mode-alist '("/.*\\.styl\\'" . css-mode))
+  (add-to-list 'auto-mode-alist '("/.*\\.wxss\\'" . css-mode))
 
   (defun my-js2-mode-hook ()
     "Hooks for js2-mode."
