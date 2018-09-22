@@ -597,7 +597,9 @@ you should place your code here."
   (add-hook 'web-mode-hook 'my-web-mode-hook)
 
   (add-to-list 'auto-mode-alist '("/.*\\.vue\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("/.*\\.styl\\'" . css-mode))
+  (add-to-list 'auto-mode-alist '("/.*\\.wxml\\'" . web-mode))
+  ;; (add-to-list 'auto-mode-alist '("/.*\\.styl\\'" . css-mode))
+  (add-to-list 'auto-mode-alist '("/.*\\.wxss\\'" . css-mode))
 
   (defun my-js2-mode-hook ()
     "Hooks for js2-mode."
@@ -730,11 +732,13 @@ you should place your code here."
           (:endgroup)
 
           (:startgrouptag)
-          ("private" . ?P)
-          ("work" . ?W)
-          ("crypt" . ?R)
+          ("private" . ?p)
+          ("work" . ?w)
+          ("crypt" . ?r)
           ("note" . ?n)
-          ("meeting" . ?M)
+          ("meeting" . ?m)
+          ("goal" . ?g)
+          ("habit" . ?A)
           (:endgrouptag)
 
           ;; note
@@ -858,16 +862,7 @@ you should place your code here."
 
   ;; custom agemda views
   (setq org-agenda-custom-commands
-        '(("d" "Daily Action List"
-           ((agenda "" ((org-agenda-ndays 1)
-                        (org-agenda-sorting-strategy '((agenda time-up priority-down tag-up)))
-                        (org-deadline-warning-days 0)))))
-          ("o" "At the office"
-           tags-todo "@office"
-           ((org-agenda-overriding-header "Office")
-            (org-agenda-skip-function #'my-org-agenda-skip-all-siblings-but-first)))
-
-          (" " "Agenda"
+        '((" " "Agenda"
            ((agenda "" nil)
             (tags "INBOX"
                   ((org-agenda-overriding-header "Tasks to Refile")
@@ -917,7 +912,7 @@ you should place your code here."
                         (org-agenda-todo-ignore-with-date bh/hide-scheduled-and-waiting-next-tasks)
                         (org-agenda-sorting-strategy
                          '(category-keep))))
-            (tags-todo "-CANCELLED+WAITING|HOLD/!"
+            (tags-todo "-CANCELLED+WAITING|-CANCELLED+HOLD/!"
                        ((org-agenda-overriding-header (concat "Waiting and Postponed Tasks"
                                                               (if bh/hide-scheduled-and-waiting-next-tasks
                                                                   ""
@@ -1401,6 +1396,9 @@ Skip project and sub-project tasks, habits, and loose non-project tasks."
   (setq org-agenda-log-mode-items (quote (closed state)))
   ;; show habit in every day
   (setq org-habit-show-habits-only-for-today nil)
+  (setq org-habit-graph-column 80)
+  (setq org-habit-preceding-days 14)
+  (setq org-habit-following-days 3)
 
 
   ;; ====== Exporting =======
@@ -1409,6 +1407,7 @@ Skip project and sub-project tasks, habits, and loose non-project tasks."
   (setq-default org-export-with-section-numbers 6)
   (setq org-export-headline-levels 6)
   (setq org-export-with-toc nil)
+  (setq org-export-with-tags nil)
   (setq org-src-preserve-indentation t)
 
   ;; Targets include this file and any file contributing to the agenda - up to 2 levels deep
