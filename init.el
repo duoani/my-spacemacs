@@ -359,6 +359,12 @@ This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
 
+  ;; work arround for chinese
+  (add-hook 'visual-line-mode-hook
+            (lambda()
+              (if visual-line-mode
+                  (setq word-wrap nil))))
+
   ;; Location of gtd files.
   (setq org-gtd-dir "~/org/gtd/")
   ;; Location of the note files.
