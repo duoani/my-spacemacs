@@ -1,3 +1,3 @@
 %<%Y/%m/%d> Daily expenses%?
-    %^{Target account|Lunch|Breakfast|Dinner|Food|Cigarette|Communication|EShop|YangChengTong|Alipay|WeChat|Cash|ABC|ICBC|CMB|Pingan|Education|Medical}                                                  %^{How much money} CNY
+    %^{Target account|Lunch|Breakfast|Dinner|Food|Cigarette|Communication|EShop|YangChengTong|Alipay|WeChat|Cash|ABC|ICBC|CMB|Pingan|Education|Medical|Service}                                                  %^{How much money} CNY
     %^{Source account|Alipay|WeChat|Cash|ABC|ICBC|CMB|Pingan|Salary|Interest}

@@ -365,6 +365,11 @@ you should place your code here."
   ;;             (if visual-line-mode
   ;;                 (setq word-wrap nil))))
 
+  (cond ((eq system-type 'windows-nt)
+         (require 'server)
+         (unless (server-running-p)
+           (server-start))))
+
   ;; Location of gtd files.
   (setq org-gtd-dir "~/org/gtd/")
   ;; Location of the note files.
@@ -390,10 +395,12 @@ you should place your code here."
   (setq org-agenda-files (list org-gtd-dir))
 
   ;; My notes files list.
-  (setq org-notes-files (directory-files org-note-dir t))
+  (setq org-notes-files (directory-files-recursively org-note-dir "\.org$"))
+  ;; (setq org-notes-files (directory-files org-note-dir t))
 
   ;; Capture templates for: TODO tasks, Notes, appointments, phone calls, meetings, and org-protocol
   ;; the %i would copy the selected text into the template
+  (setq org-protocol-default-template-key "L")
   (setq org-capture-templates
         '(
           ("t" "Task entry" entry (file org-file-gtd-inbox)
@@ -426,6 +433,9 @@ you should place your code here."
 
           ("l" "Link entry" entry (file org-file-gtd-inbox)
            (file "~/.spacemacs.d/org-templates/link.org") :empty-lines 1)
+
+          ("L" "Link entry from org-protocol" entry (file org-file-gtd-inbox)
+           (file "~/.spacemacs.d/org-templates/link-org-protocol.org") :empty-lines 1)
 
           ("m" "Meeting" entry (file org-file-gtd-inbox)
            (file "~/.spacemacs.d/org-templates/meeting.org") :clock-in t :clock-resume t)
@@ -625,6 +635,7 @@ you should place your code here."
                             org-docview
                             org-info
                             org-checklist
+                            org-protocol
                             org-crypt)))
 
   (defun my-org-mode-hook ()
@@ -644,8 +655,8 @@ you should place your code here."
   ;; Make org-mode friendly for Chinese chars.
   (setq org-emphasis-regexp-components
         '(
-          "- “：，。、  \t('\"{"        ;pre
-          "- ”：，。、 \t.,:!?;'\")}\\" ;post
+          "- “：，。、？！（  \t('\"{"        ;pre
+          "- ”：，。、？！ ）\t.,:!?;'\")}\\" ;post
           " \t\r\n,\"'"                 ;border *forbidden*
           "."                           ;body-regexp
           1                             ; newline
@@ -669,17 +680,6 @@ you should place your code here."
   (global-set-key (kbd "<f2> m") 'point-to-register)
   (global-set-key (kbd "<f2> j") 'jump-to-register)
 
-  ;; org startup indented on org file by default
-  (setq org-startup-indented t)
-  ;; Don't enable this because it breaks access to emacs from my Android phone
-  (setq org-startup-with-inline-images nil)
-  ;; hide log & clock info as default
-  (setq org-log-into-drawer t)
-  ;; allows changing todo states with S-left and S-right skipping all of the normal processing when entering or leaving a todo state. This cycles through the todo states but skips setting timestamps and entering notes which is very convenient when all you want to do is fix up the status of an entry.
-  (setq org-treat-S-cursor-todo-selection-as-state-change nil)
-  ;; Create unique IDs for tasks when linking
-  (setq org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id)
-
   ;; Hiding markup elements in org-mode
   ;; (setq org-hide-emphasis-markers nil)
   ;; (setq org-emphasis-alist
@@ -698,6 +698,20 @@ you should place your code here."
 
   ;; Goto currently clockly items
   (global-set-key (kbd "<f11>") 'org-clock-goto)
+
+  ;; org startup indented on org file by default
+  (setq org-startup-indented t)
+  ;; Don't enable this because it breaks access to emacs from my Android phone
+  (setq org-startup-with-inline-images nil)
+  ;; allows changing todo states with S-left and S-right skipping all of the normal processing when entering or leaving a todo state. This cycles through the todo states but skips setting timestamps and entering notes which is very convenient when all you want to do is fix up the status of an entry.
+  (setq org-treat-S-cursor-todo-selection-as-state-change nil)
+  ;; Create unique IDs for tasks when linking
+  (setq org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id)
+  ;; enable the log feature, hiding log & clock info as default
+  (setq org-log-into-drawer t)
+  (setq org-log-reschedule 'time)
+  ;; (setq org-log-redeadline 'note)
+  ;; (setq org-log-note-clock-out t)
 
   (defun org-auto-tag ()
     (interactive)
@@ -736,6 +750,7 @@ you should place your code here."
           ("work" . ?w)
           ("crypt" . ?r)
           ("note" . ?n)
+          ("gtd" . ?G)
           ("meeting" . ?m)
           ("goal" . ?g)
           ("habit" . ?A)
@@ -862,7 +877,11 @@ you should place your code here."
 
   ;; custom agemda views
   (setq org-agenda-custom-commands
-        '((" " "Agenda"
+        '(("R" "Recent activities"
+           ((tags "gtd"
+                  ((org-agenda-overriding-header "Recent Activities")
+                   (org-agenda-skip-function '(+org/has-child-and-last-update-before 7))))))
+          (" " "Agenda"
            ((agenda "" nil)
             (tags "INBOX"
                   ((org-agenda-overriding-header "Tasks to Refile")
@@ -1411,9 +1430,23 @@ Skip project and sub-project tasks, habits, and loose non-project tasks."
   ;; code block indentation
   (setq org-src-preserve-indentation nil)
 
+  ;; see https://stackoverflow.com/a/9560430/10283735
+  (setq org-publish-project-alist
+        '(("RFC7230.zh-cn.md"
+           :base-directory "~/org/notes/RFC7230.zh-cn/src"
+           :base-extension "org"
+           :publishing-directory "~/org/notes/RFC7230.zh-cn/dist"
+           :publishing-function org-md-publish-to-md)
+          ("RFC7230.zh-cn.html"
+           :base-directory "~/org/notes/RFC7230.zh-cn/src"
+           :base-extension "org"
+           :publishing-directory "~/org/notes/RFC7230.zh-cn/docs"
+           :publishing-function org-html-publish-to-html)
+          ))
+
   ;; Targets include this file and any file contributing to the agenda - up to 2 levels deep
-  (setq org-refile-targets (quote ((nil :maxlevel . 1)
-                                   (org-agenda-files :maxlevel . 1)
+  (setq org-refile-targets (quote ((nil :maxlevel . 2)
+                                   (org-agenda-files :maxlevel . 2)
                                    (org-notes-files :maxlevel . 9))))
 
   ;; Use full outline paths for refile targets - we file directly with IDO
@@ -1542,6 +1575,10 @@ Skip project and sub-project tasks, habits, and loose non-project tasks."
     (setq buffer-display-table (make-display-table))
     (aset buffer-display-table ?\^M []))
 
+  ;; Enable golden ratio mode
+  ;; see https://github.com/roman/golden-ratio.el
+  (golden-ratio-mode t)
+
   ;; global company mode
   (global-company-mode t)
   (global-set-key (kbd "C-'") 'company-complete-common)
@@ -1586,262 +1623,21 @@ Skip project and sub-project tasks, habits, and loose non-project tasks."
   ;; disable Subscripts and Superscripts
   (setq org-use-sub-superscripts nil)
 
+  (defun get-string-from-file (filePath)
+    "Return filePath's file content."
+    (with-temp-buffer
+      (insert-file-contents filePath)
+      (buffer-string)))
+
   ;; org-html styles
   (setq org-html-preamble nil)
   (setq org-html-postamble nil)
   (setq org-html-head-include-default-style nil)
-  (setq org-html-head "
-   <style type=\"text/css\">
-html {
-  padding: 0;
-}
-
-body {
-  font-family: \"Droid Serif\", \"Lucida Grande\", \"Lucida Sans Unicode\", \"DejaVu Sans\", Verdana, sans-serif;
-  font-size: 11pt;
-  line-height: 1.3;
-  margin: 40pt;
-  padding: 0;
-}
-ul, ol {
-  padding-left: 1em;
-}
-h1,h2,h3,h4,h5,h6,.h1,.h2,.h3,.h4,.h5,.h6 {
-  font-family: \"Helvetica Neue\", Helvetica, Arial, sans-serif;
-  font-weight: bold;
-  line-height: 1.1;
-  color: inherit
-}
-
-h1,h2,h3,h4,h5,h6 {
-  margin-bottom: 9px
-}
-
-p {
-  margin: 0 0 10px
-}
-
-.outline-2 h1 {
-  margin-top: 45px;
-  font-size: 2.5em;
-}
-
-.outline-2 h2 {
-  margin-top: 40px;
-  font-size: 2em;
-}
-
-.outline-2 h3 {
-  margin-top: 35px;
-  font-size: 1.5em;
-}
-
-.outline-2 h4 {
-  margin-top: 30px;
-  font-size: 1.2em
-}
-
-.outline-2 h5 {
-  margin-top: 30px;
-  font-size: 1.1em
-}
-
-.outline-2 h6 {
-  margin-top: 30px;
-  font-size: 1.1em
-}
-
-.outline-2 code {
-  padding: 2px 4px;
-  font-size: 90%;
-  color: #c7254e;
-  background-color: #f9f2f4;
-  white-space: nowrap;
-  border-radius: 4px;
-}
-
-.outline-2 table{
-  width: 100%;
-}
-
-table tbody tr:nth-child(odd){
-  background-color: #efefef;
-}
-
-.title {
-  position: fixed;
-  display: inline;
-  left: 0px;
-  top: 0px;
-  height: 54px;
-  width: 100%;
-  margin-top: 0px;
-  background-color: #eee;
-  padding: 0;
-  z-index: 99;
-}
-
-#orgquote {
-  position: fixed;
-  display: block;
-  top: 77px;
-  padding: 5pt;
-  text-align: center;
-  background-color: black;
-  width: 100%;
-  color: #ccc;
-  box-shadow: 0px 15px 10px #fff;
-  font-size: 90%;
-  font-family: Courier new;
-  z-index: 98;
-}
-
-h1.title {
-  text-shadow: 2px 2px 4px #999;
-  padding-top: 23px;
-  padding-left: 70pt;
-  font-size: 23pt;
-}
-
-.timestamp {
-  font-family: Courier New;
-  color: #888888;
-}
-
-pre {
-  background-color: #eee;
-  box-shadow: 5px 5px 5px #888;
-  border: none;
-  padding: 5pt;
-  margin-bottom: 14pt;
-  color: black;
-  padding: 12pt;
-  font-family: Courier New;
-  font-size: 95%;
-  overflow: auto;
-}
-
-#outline-container-1 {
-  padding-top: 3pt;
-}
-
-p {
-  margin-top: 0;
-  text-align: justify;
-}
-
-a:link {
-  font-weight: normal;
-  text-decoration: none;
-}
-
-a:visited {
-  font-weight: normal;
-  text-decoration: none;
-}
-
-a:hover, a:active {
-  text-decoration: underline;
-}
-
-dd {
-  text-align: justify;
-  margin-bottom: 14pt;
-}
-
-dt {
-  font-size: 110%;
-  font-family: Courier New;
-  color: #1c3030;
-  padding: 3px;
-  margin-bottom: 3px;
-}
-
-li {
-  margin: 10px;
-  text-align: justify;
-}
-
-#table-of-contents {
-  font-size: 9pt;
-  position: fixed;
-  right: 0em;
-  top: 0em;
-  background: white;
-  -webkit-box-shadow: 0 0 1em #777777;
-  -moz-box-shadow: 0 0 1em #777777;
-  -webkit-border-bottom-left-radius: 5px;
-  -moz-border-radius-bottomleft: 5px;
-  text-align: right;
-  max-height: 80%;
-  overflow: auto;
-  z-index: 200;
-}
-
-#table-of-contents h2 {
-  font-size: 9pt;
-  max-width: 8em;
-  font-weight: normal;
-  padding-left: 0.5em;
-  padding-top: 0.05em;
-  padding-bottom: 0.05em;
-}
-
-#table-of-contents ul {
-  margin-left: 14pt;
-  margin-bottom: 10pt;
-  padding: 0
-}
-
-#table-of-contents li {
-  padding: 0;
-  margin: 1px;
-  list-style: none;
-}
-
-#table-of-contents ul>:first-child {
-  color: blue;
-}
-
-#table-of-contents #text-table-of-contents {
-  display: none;
-  text-align: left;
-}
-
-#table-of-contents:hover #text-table-of-contents {
-  display: block;
-  padding: 0.5em;
-  margin-top: -1.5em;
-}
-
-img {
-  border: 1px solid black;
-}
-img.random {
-  max-width: 750px;
-  max-height: 380px;
-  margin-bottom: 10pt;
-}
-.underline{
-  text-decoration: underline;
-}
-del{
-  text-decoration: line-through;
-}
-i{
-  font-style: italic;
-}
-@media screen
-{
-  #table-of-contents {
-    float: right;
-    border: 1px solid #CCC;
-    max-width: 50%;
-    overflow: auto;
-  }
-} /* END OF @media screen */
-   </style>")
-
+  (setq org-html-head (seq-concatenate
+                       'string
+                       "<style type=\"text/css\">"
+                       (get-string-from-file "~/.spacemacs.d/org-templates/org-export.css")
+                       "</style>"))
   ;; Graph library path
   (setq org-plantuml-jar-path
         (expand-file-name "~/.spacemacs.d/plantuml.jar"))

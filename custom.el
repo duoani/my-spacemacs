@@ -23,6 +23,7 @@
  ;; If there is more than one, they won't work right.
  '(bold ((t (:foreground "#b58900" :weight bold))))
  '(org-code ((t (:background "#fffacd" :distant-foreground "#fffacd" :foreground "#002b36"))))
+ '(org-document-title ((t (:foreground "#b58900" :weight normal :height 1.0))))
  '(org-list-dt ((t (:foreground "#b58900" :weight bold))))
  '(org-meta-line ((t (:inherit font-lock-comment-face))))
  '(org-property-value ((t (:inherit font-lock-comment-face))) t)
