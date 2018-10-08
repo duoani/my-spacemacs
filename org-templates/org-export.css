@@ -231,3 +231,18 @@ i{
     overflow: auto;
   }
 } /* END OF @media screen */
+
+.footdef {
+}
+.footdef sup {
+  float: left;
+  width: 3em;
+}
+.footdef > .footpara {
+  margin-left: 3em;
+  overflow-x: hidden;
+}
+.org-src-container {
+  width: 100%;
+  overflow-x: auto;
+}

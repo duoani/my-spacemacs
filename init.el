@@ -359,6 +359,11 @@ This is the place where most of your configurations should be done. Unless it is
 explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
 
+  (cond ((eq system-type 'windows-nt)
+         (require 'server)
+         (unless (server-running-p)
+           (server-start))))
+
   ;; Location of gtd files.
   (setq org-gtd-dir "~/org/gtd/")
   ;; Location of the note files.
@@ -389,6 +394,7 @@ you should place your code here."
 
   ;; Capture templates for: TODO tasks, Notes, appointments, phone calls, meetings, and org-protocol
   ;; the %i would copy the selected text into the template
+  (setq org-protocol-default-template-key "L")
   (setq org-capture-templates
         '(
           ("t" "Task entry" entry (file org-file-gtd-inbox)
@@ -421,6 +427,9 @@ you should place your code here."
 
           ("l" "Link entry" entry (file org-file-gtd-inbox)
            (file "~/.spacemacs.d/org-templates/link.org") :empty-lines 1)
+
+          ("L" "Link entry from org-protocol" entry (file org-file-gtd-inbox)
+           (file "~/.spacemacs.d/org-templates/link-org-protocol.org") :empty-lines 1)
 
           ("m" "Meeting" entry (file org-file-gtd-inbox)
            (file "~/.spacemacs.d/org-templates/meeting.org") :clock-in t :clock-resume t)
@@ -620,6 +629,7 @@ you should place your code here."
                             org-docview
                             org-info
                             org-checklist
+                            org-protocol
                             org-crypt)))
 
   (defun my-org-mode-hook ()
@@ -1428,8 +1438,8 @@ Skip project and sub-project tasks, habits, and loose non-project tasks."
           ))
 
   ;; Targets include this file and any file contributing to the agenda - up to 2 levels deep
-  (setq org-refile-targets (quote ((nil :maxlevel . 1)
-                                   (org-agenda-files :maxlevel . 1)
+  (setq org-refile-targets (quote ((nil :maxlevel . 2)
+                                   (org-agenda-files :maxlevel . 2)
                                    (org-notes-files :maxlevel . 9))))
 
   ;; Use full outline paths for refile targets - we file directly with IDO
