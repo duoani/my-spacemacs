@@ -360,10 +360,10 @@ explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
 
   ;; work arround for chinese
-  (add-hook 'visual-line-mode-hook
-            (lambda()
-              (if visual-line-mode
-                  (setq word-wrap nil))))
+  ;; (add-hook 'visual-line-mode-hook
+  ;;           (lambda()
+  ;;             (if visual-line-mode
+  ;;                 (setq word-wrap nil))))
 
   ;; Location of gtd files.
   (setq org-gtd-dir "~/org/gtd/")
@@ -1408,7 +1408,8 @@ Skip project and sub-project tasks, habits, and loose non-project tasks."
   (setq org-export-headline-levels 6)
   (setq org-export-with-toc nil)
   (setq org-export-with-tags nil)
-  (setq org-src-preserve-indentation t)
+  ;; code block indentation
+  (setq org-src-preserve-indentation nil)
 
   ;; Targets include this file and any file contributing to the agenda - up to 2 levels deep
   (setq org-refile-targets (quote ((nil :maxlevel . 1)
