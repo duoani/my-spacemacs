@@ -99,17 +99,34 @@ h1.title {
   color: #888888;
 }
 
+pre, blockquote {
+  margin-bottom: 1em;
+}
+
 pre {
-  background-color: #eee;
-  box-shadow: 5px 5px 5px #888;
-  border: none;
-  padding: 5pt;
-  margin-bottom: 14pt;
-  color: black;
-  padding: 12pt;
-  font-family: Consolas,Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace,sans-serif
+  margin: 0;
+  padding: 1em;
+  line-height: 1.45;
   font-size: 95%;
+  font-family: Consolas,Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace,sans-serif;
+  border-radius: 3px;
   overflow: auto;
+}
+
+blockquote {
+  padding: 0 1em;
+  color: #6a737d;
+  border-left: 0.25em solid #dfe2e5;
+  margin: 0;
+}
+
+.org-src-container, .example {
+  width: 100%;
+  overflow-x: auto;
+  border-left: 0.25em solid #dfe2e5;
+  border-radius: 0.5rem;
+  background-color: #f6f8fa;
+  margin-bottom: 2em;
 }
 
 #outline-container-1 {

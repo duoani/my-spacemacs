@@ -655,8 +655,8 @@ you should place your code here."
   ;; Make org-mode friendly for Chinese chars.
   (setq org-emphasis-regexp-components
         '(
-          "- “：，。、？！（  \t('\"{"        ;pre
-          "- ”：，。、？！ ）\t.,:!?;'\")}\\" ;post
+          "- “：，。、？！；（  \t('\"{"        ;pre
+          "- ”：，。、？！；） \t.,:!?;'\")}\\" ;post
           " \t\r\n,\"'"                 ;border *forbidden*
           "."                           ;body-regexp
           1                             ; newline
@@ -1422,7 +1422,7 @@ Skip project and sub-project tasks, habits, and loose non-project tasks."
 
   ;; ====== Exporting =======
 
-  ;; auto section number to 4 on org export
+  ;; auto section number to 6 on org export
   (setq-default org-export-with-section-numbers 6)
   (setq org-export-headline-levels 6)
   (setq org-export-with-toc nil)
