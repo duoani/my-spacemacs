@@ -365,10 +365,10 @@ you should place your code here."
   ;;             (if visual-line-mode
   ;;                 (setq word-wrap nil))))
 
-  (cond ((eq system-type 'windows-nt)
-         (require 'server)
-         (unless (server-running-p)
-           (server-start))))
+  ;; (cond ((eq system-type 'windows-nt)
+  ;;        (require 'server)
+  ;;        (unless (server-running-p)
+  ;;          (server-start))))
 
   ;; Location of gtd files.
   (setq org-gtd-dir "~/org/gtd/")
@@ -642,6 +642,15 @@ you should place your code here."
     "Hooks for org-mode."
     (define-key org-mode-map [M-return] 'org-meta-return))
   (add-hook 'org-mode-hook 'my-org-mode-hook)
+
+  (with-eval-after-load 'org
+    (org-add-link-type "ruby" #'ignore #'export-ruby-link))
+
+  ;; add <ruby> tag support for org-export
+  (defun export-ruby-link (path desc format)
+    (cl-case format
+      (html (format "<ruby>%s<rt>%s</rt></ruby>" desc path))
+      (md (format "<ruby>%s<rt>%s</rt></ruby>" desc path))))
 
   ;; rebind the default key-bindings "/" of which evilified-mode shadoweded in org-agenda-mode.
   ;; see https://stackoverflow.com/questions/41314759/rebind-keys-in-spacemacs-for-neotree-buffer/41351544#41351544
@@ -1588,6 +1597,8 @@ Skip project and sub-project tasks, habits, and loose non-project tasks."
   (define-key evil-normal-state-map (kbd "u") 'undo-tree-undo)
   ;; Youdao Dictionary
   (spacemacs/set-leader-keys "oy" 'youdao-dictionary-search-at-point-tooltip)
+  ;;
+  (spacemacs/set-leader-keys "om" 'set-mark-command)
 
   ;; use projectile native ignore index
   (setq projectile-indexing-method 'native)
