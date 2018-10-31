@@ -58,8 +58,9 @@ ruby {
   border-bottom: 1px solid #d9d9d9;
 }
 
-rt {
+ruby > rt {
   color: #6a737d;
+  text-align: center;
 }
 
 h1,h2,h3,h4,h5,h6,.h1,.h2,.h3,.h4,.h5,.h6 {
