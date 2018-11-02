@@ -169,7 +169,11 @@ blockquote {
   border-left: 0.25em solid #dfe2e5;
   border-radius: 0.5rem;
   background-color: #f6f8fa;
-  margin-bottom: 2em;
+  margin-bottom: 16px;
+}
+
+.org-src-container pre {
+  margin-bottom: 0;
 }
 
 .timestamp {

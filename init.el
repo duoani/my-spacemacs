@@ -83,7 +83,8 @@ values."
                                       org-ref
                                       xref-js2
                                       helm-org-rifle
-                                      solarized-theme)
+                                      solarized-theme
+                                      terminal-here)
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
    ;; A list of packages that will not be installed and loaded.
@@ -369,6 +370,13 @@ you should place your code here."
   ;;        (require 'server)
   ;;        (unless (server-running-p)
   ;;          (server-start))))
+
+  ;; open an external terminal in the current directory
+  ;; @see https://github.com/davidshepherd7/terminal-here
+  (if (eq system-type 'windows-nt)
+      (setq terminal-here-terminal-command (list "D:\\Env\\Git\\git-bash.exe")))
+  (global-set-key (kbd "S-<f5>") #'terminal-here-launch)
+  (global-set-key (kbd "S-<f6>") #'terminal-here-project-launch)
 
   ;; Location of gtd files.
   (setq org-gtd-dir "~/org/gtd/")
@@ -1441,16 +1449,17 @@ Skip project and sub-project tasks, habits, and loose non-project tasks."
 
   ;; see https://stackoverflow.com/a/9560430/10283735
   (setq org-publish-project-alist
-        '(("RFC7230.zh-cn.md"
-           :base-directory "~/org/notes/RFC7230.zh-cn/src"
+        '(
+          ("HTTP-RFCs.zh-cn.html"
+           :base-directory "~/org/notes/HTTP-RFCs.zh-cn/src"
            :base-extension "org"
-           :publishing-directory "~/org/notes/RFC7230.zh-cn/dist"
-           :publishing-function org-md-publish-to-md)
-          ("RFC7230.zh-cn.html"
-           :base-directory "~/org/notes/RFC7230.zh-cn/src"
-           :base-extension "org"
-           :publishing-directory "~/org/notes/RFC7230.zh-cn/docs"
+           :publishing-directory "~/org/notes/HTTP-RFCs.zh-cn/docs"
            :publishing-function org-html-publish-to-html)
+          ;; ("RFC7230.zh-cn.md"
+          ;;  :base-directory "~/org/notes/RFC7230.zh-cn/src"
+          ;;  :base-extension "org"
+          ;;  :publishing-directory "~/org/notes/RFC7230.zh-cn/dist"
+          ;;  :publishing-function org-md-publish-to-md)
           ))
 
   ;; Targets include this file and any file contributing to the agenda - up to 2 levels deep
