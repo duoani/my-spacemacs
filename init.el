@@ -1474,13 +1474,13 @@ Skip project and sub-project tasks, habits, and loose non-project tasks."
   (setq org-outline-path-complete-in-steps nil)
 
   ;; Allow refile to create parent tasks with confirmation
-  (setq org-refile-allow-creating-parent-nodes t) ;; (quote confirm)
+  (setq org-refile-allow-creating-parent-nodes 'confirm) ;; (quote confirm)
 
   ;; Use IDO for both buffer and file completion and ido-everywhere to t
   (setq org-completion-use-ido t)
   (setq ido-everywhere t)
   (setq ido-max-directory-size 100000)
-  ;;(ido-mode (quote both))
+  (ido-mode (quote both))
   ;; Use the current window when visiting files and buffers with ido
   (setq ido-default-file-method 'selected-window)
   (setq ido-default-buffer-method 'selected-window)
