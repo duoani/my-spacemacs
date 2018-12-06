@@ -84,7 +84,8 @@ values."
                                       xref-js2
                                       helm-org-rifle
                                       solarized-theme
-                                      terminal-here)
+                                      terminal-here
+                                      org-brain)
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
    ;; A list of packages that will not be installed and loaded.
@@ -237,7 +238,7 @@ values."
    ;; auto-save the file in-place, `cache' to auto-save the file to another
    ;; file stored in the cache directory and `nil' to disable auto-saving.
    ;; (default 'cache)
-   dotspacemacs-auto-save-file-location 'cache
+   dotspacemacs-auto-save-file-location nil
    ;; Maximum number of rollback slots to keep in the cache. (default 5)
    dotspacemacs-max-rollback-slots 5
    ;; If non nil, `helm' will try to minimize the space it uses. (default nil)
@@ -1436,6 +1437,43 @@ Skip project and sub-project tasks, habits, and loose non-project tasks."
   (setq org-habit-preceding-days 14)
   (setq org-habit-following-days 3)
 
+  (defun org-toggle-link-display ()
+    "Toggle the literal or descriptive display of links."
+    (interactive)
+    (if org-descriptive-links
+        (progn (org-remove-from-invisibility-spec '(org-link))
+               (org-restart-font-lock)
+               (setq org-descriptive-links nil))
+      (progn (add-to-invisibility-spec '(org-link))
+             (org-restart-font-lock)
+             (setq org-descriptive-links t))))
+
+  ;; ======= source block settings ======
+
+  ;; (defun org-insert-file (filename)
+  ;;   "Insert Elisp code block recreating file named FILENAME."
+  ;;   (interactive "f")
+  ;;   (let ((base64-string
+  ;;          (with-temp-buffer
+  ;;            (insert-file-contents-literally filename)
+  ;;            (base64-encode-region (point-min) (point-max))
+  ;;            (buffer-string))))
+  ;;     (insert (format "#+BEGIN_SRC emacs-lisp :results output silent\n  (with-temp-file %S\n    (insert (base64-decode-string\n      %S)))\n#+END_SRC" filename base64-string))))
+
+  ;; see https://emacs.stackexchange.com/questions/7211/collapse-src-blocks-in-org-mode-by-default
+  (defvar org-blocks-hidden nil)
+
+  (defun org-toggle-blocks ()
+    (interactive)
+    (if org-blocks-hidden
+        (org-show-block-all)
+      (org-hide-block-all))
+    (setq-local org-blocks-hidden (not org-blocks-hidden)))
+
+  ;; make source-blocks hidden as default
+  ;; (add-hook 'org-mode-hook 'org-toggle-blocks)
+
+  (define-key org-mode-map (kbd "C-c t") 'org-toggle-blocks)
 
   ;; ====== Exporting =======
 
@@ -1744,13 +1782,29 @@ Skip project and sub-project tasks, habits, and loose non-project tasks."
   (setq ledger-reconcile-finish-force-quit t)
 
   (add-to-list 'load-path "~/.spacemacs.d/packages/")
-  (require 'rfc)
-  (setq rfc-url-save-directory "~/rfc")
-  (setq rfc-index-url "http://www.ietf.org/rfc/rfc-index.txt")
-  (setq rfc-archive-alist (list (concat rfc-url-save-directory "/rfc.zip")
-                                rfc-url-save-directory
-                                "http://www.ietf.org/rfc/"))
-  (setq rfc-insert-content-url-hook '(rfc-url-save))
+  ;; (require 'rfc)
+  ;; (setq rfc-url-save-directory "~/rfc")
+  ;; (setq rfc-index-url "http://www.ietf.org/rfc/rfc-index.txt")
+  ;; (setq rfc-archive-alist (list (concat rfc-url-save-directory "/rfc.zip")
+  ;;                               rfc-url-save-directory
+  ;;                               "http://www.ietf.org/rfc/"))
+  ;; (setq rfc-insert-content-url-hook '(rfc-url-save))
+
+  (use-package org-brain :ensure t
+    :init
+    (setq org-brain-path "~/org")
+    ;; For Evil users
+    (with-eval-after-load 'evil
+      (evil-set-initial-state 'org-brain-visualize-mode 'emacs))
+    :config
+    (setq org-id-track-globally t)
+    (setq org-id-locations-file "~/org/.org-id-locations")
+    (push '("b" "Brain" plain (function org-brain-goto-end)
+            "* %i%?" :empty-lines 1)
+          org-capture-templates)
+    (setq org-brain-visualize-default-choices 'all)
+    (setq org-brain-title-max-length 12))
+
   ;; user-config end
   )
 

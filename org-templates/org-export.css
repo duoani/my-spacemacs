@@ -172,7 +172,7 @@ table tbody tr:nth-child(odd){
 }
 
 .org-right {
-  text-right: right;
+  text-align: right;
 }
 
 pre,
