@@ -85,7 +85,8 @@ values."
                                       helm-org-rifle
                                       solarized-theme
                                       terminal-here
-                                      org-brain)
+                                      org-brain
+                                      dart-mode)
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
    ;; A list of packages that will not be installed and loaded.
@@ -417,6 +418,11 @@ you should place your code here."
 
           ("n" "Quick Note" entry (file org-file-gtd-inbox)
            (file "~/.spacemacs.d/org-templates/note.org") :clock-in t :clock-resume t :empty-lines 1)
+          
+          ("p" "Project Specified")
+
+          ("pj" "Joyue Project" entry (file+olp org-file-gtd-private "Tasks" "Joyue Project")
+           (file "~/.spacemacs.d/org-templates/todo.org") :clock-in t :clock-resume t :empty-lines 1)
 
           ("e" "English Learning")
 
@@ -619,6 +625,7 @@ you should place your code here."
   (add-to-list 'auto-mode-alist '("/.*\\.wxml\\'" . web-mode))
   ;; (add-to-list 'auto-mode-alist '("/.*\\.styl\\'" . css-mode))
   (add-to-list 'auto-mode-alist '("/.*\\.wxss\\'" . css-mode))
+  (add-to-list 'auto-mode-alist '("/.*\\.dart\\'" . dart-mode))
 
   (defun my-js2-mode-hook ()
     "Hooks for js2-mode."
@@ -669,6 +676,8 @@ you should place your code here."
   ;; hide the emphasis markup (e.g. /.../ for italics, *...* for bold, etc.)
   ;; @see https://zzamboni.org/post/beautifying-org-mode-in-emacs/
   (setq org-hide-emphasis-markers t)
+  ;; To avoid accidentally inserting text in invisible area (...) in Org files
+  (setq org-catch-invisible-edits 'error)
 
   ;; Make org-mode friendly for Chinese chars.
   (setq org-emphasis-regexp-components
@@ -781,6 +790,7 @@ you should place your code here."
           ("git" . ?G)
           ("nodejs" . ?N)
           ("javascript" . ?J)
+          ("flutter" . ?D)
           ("css" . ?C)
           ("html" . ?H)
           ("emacs" . ?E)
@@ -821,6 +831,7 @@ you should place your code here."
                 ("WAITING" :foreground "#cb4b16" :weight bold)
                 ("UNREAD" :foreground "#cb4b16" :weight bold)
                 ("FIXME" :foreground "#cb4b16" :weight bold)
+                ("FIXED" :foreground "#859900" :weight bold)
                 ("HOLD" :foreground "#b58900" :weight bold)
                 ("SOMEDAY" :foreground "#b58900" :weight bold)
                 ("CANCELED" :foreground "#859900" :weight bold)
@@ -1759,6 +1770,7 @@ Skip project and sub-project tasks, habits, and loose non-project tasks."
    '((sh . t)
      (dot . t)
      (js . t)
+     (java . t)
      (latex .t)
      (python . t)
      (emacs-lisp . t)

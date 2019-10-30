@@ -175,6 +175,13 @@ table tbody tr:nth-child(odd){
   text-align: right;
 }
 
+img {
+  border: 1px solid #ddd;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 pre,
 blockquote {
   margin-bottom: 1em;
